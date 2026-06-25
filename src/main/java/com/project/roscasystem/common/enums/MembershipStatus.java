@@ -5,5 +5,6 @@ public enum MembershipStatus {
     POOL_RECEIVED,
     RESTRICTED,
     EXPLELLED,
-    COMPLETED
+    COMPLETED,
+    LEFT
 }

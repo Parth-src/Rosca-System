@@ -31,7 +31,7 @@ public class Auction extends BaseEntity {
 
     private LocalDateTime endTime;
 
-    private double highestBidAmount;
+    private double winningDiscountBid;
 
     @ManyToOne
     @JoinColumn(name="winner_membership_id")

@@ -1,6 +1,6 @@
 package com.project.roscasystem.common.enums;
 
-public enum GroupType {
+public enum GroupFrequency {
     DAILY,
     WEEKLY,
     MONTHLY

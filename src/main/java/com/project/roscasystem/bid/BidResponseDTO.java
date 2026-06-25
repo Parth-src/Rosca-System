@@ -9,11 +9,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlaceBidRequestDTO {
 
-    private long auctionId;
+public class BidResponseDTO {
+    private Long bidId;
 
-    private long membershipId;
+    private String bidderName;
 
     private double bidAmount;
+
+    private Long auctionId;
 }
