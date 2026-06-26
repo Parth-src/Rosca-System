@@ -1,9 +1,7 @@
 package com.project.roscasystem.membership;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 @Getter
 @Setter
@@ -11,8 +9,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class JoinGroupRequestDTO {
 
+    @NonNull
     private Long userId;
 
+    @NotNull
     private Long groupId;
 
 }

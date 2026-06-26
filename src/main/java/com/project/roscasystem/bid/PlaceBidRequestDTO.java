@@ -1,9 +1,8 @@
 package com.project.roscasystem.bid;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.*;
 
 @Getter
 @Setter
@@ -11,9 +10,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PlaceBidRequestDTO {
 
+    @NotNull
     private long auctionId;
 
+    @NotNull
     private long membershipId;
 
+    @Positive
     private double bidAmount;
 }
