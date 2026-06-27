@@ -57,12 +57,101 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
-            Map<String, String> errors = new HashMap<>();
+            Map<String,String> errors = new HashMap<>();
 
-            ex.getBindingResult().getFieldErrors().forEach((error) -> {errors.put(error.getField(), error.getDefaultMessage())});
+            ex.getBindingResult()
+                    .getFieldErrors()
+                    .forEach((error) ->
+                        errors.put(error.getField(), error.getDefaultMessage()));
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
     }
+
+    @ExceptionHandler(GroupFullException.class)
+    public ResponseEntity<ErrorResponseDTO> handleGroupFullException(GroupFullException ex) {
+        ErrorResponseDTO error= new ErrorResponseDTO(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(AuctionAlreadyOpenException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAuctionAlreadyOpenException(AuctionAlreadyOpenException ex) {
+        ErrorResponseDTO error= new ErrorResponseDTO(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(UserAlreadyMemberException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUserAlreadyMemberException(UserAlreadyMemberException ex) {
+        ErrorResponseDTO error= new ErrorResponseDTO(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUserNotFoundException(UserNotFoundException ex) {
+        ErrorResponseDTO error= new ErrorResponseDTO(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(BidAlreadyPlacedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleBidAlreadyPlacedException(BidAlreadyPlacedException ex) {
+        ErrorResponseDTO error= new ErrorResponseDTO(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+
+    @ExceptionHandler(MemberAlreadyWonException.class)
+    public ResponseEntity<ErrorResponseDTO> handleMemberAlreadyWonException(MemberAlreadyWonException ex) {
+        ErrorResponseDTO error= new ErrorResponseDTO(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(NoBidsFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleNoBidsFoundException(NoBidsFoundException ex) {
+        ErrorResponseDTO error= new ErrorResponseDTO(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+
+    @ExceptionHandler(AuctionClosedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAuctionClosedException(AuctionClosedException ex) {
+        ErrorResponseDTO error= new ErrorResponseDTO(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponseDTO> handleException(RuntimeException e){
@@ -75,6 +164,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
 
     }
+
 
 
 

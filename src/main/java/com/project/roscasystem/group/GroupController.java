@@ -17,12 +17,12 @@ public class GroupController {
         return groupService.createGroup(request);
     }
 
-    @RequestMapping("/{id}")
+    @GetMapping("/{id}")
     public GroupResponseDTO getGroup(@PathVariable Long id){
         return groupService.getGroup(id);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public void deleteGroup(@PathVariable Long id){
           groupService.deleteGroup(id);
     }

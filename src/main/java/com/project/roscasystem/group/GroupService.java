@@ -1,5 +1,6 @@
 package com.project.roscasystem.group;
 
+import com.project.roscasystem.exceptions.GroupNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -52,13 +53,13 @@ public class GroupService {
 
     @Transactional
     public void deleteGroup(Long id){
-        Group group= groupRepository.findById(id).orElseThrow(()->new RuntimeException("Group not found"));
+        Group group= groupRepository.findById(id).orElseThrow(()->new GroupNotFoundException("Group not found"));
         groupRepository.delete(group);
     }
 
 
     public GroupResponseDTO getGroup(Long id){
-        Group group= groupRepository.findById(id).orElseThrow(()->new RuntimeException("Group not found"));
+        Group group= groupRepository.findById(id).orElseThrow(()->new GroupNotFoundException("Group not found"));
 
         return convertToDto(group);
     }

@@ -6,6 +6,7 @@ import com.project.roscasystem.bid.BidResponseDTO;
 import com.project.roscasystem.bid.PlaceBidRequestDTO;
 import com.project.roscasystem.common.enums.AuctionStatus;
 import com.project.roscasystem.common.enums.MembershipStatus;
+import com.project.roscasystem.exceptions.*;
 import com.project.roscasystem.group.Group;
 import com.project.roscasystem.group.GroupRepository;
 import com.project.roscasystem.membership.Membership;
@@ -28,7 +29,7 @@ public class AuctionService {
     private final BidRepository bidRepository;
 
     public AuctionResponseDTO createAuction(Long groupId){
-        Group group=  groupRepository.findById(groupId).orElseThrow(()->new IllegalArgumentException("No such group exists"));
+        Group group=  groupRepository.findById(groupId).orElseThrow(()->new GroupNotFoundException("No such group exists"));
 
         if(auctionRepository.existsByGroupAndAuctionStatus(group, AuctionStatus.OPEN )){
             throw new RuntimeException("Auction already exists");
@@ -80,9 +81,9 @@ public class AuctionService {
     }
 
     public AuctionResponseDTO getCurrentAuction(Long groupId){
-        Group group= groupRepository.findById(groupId).orElseThrow(()->new RuntimeException("No such group exists"));
+        Group group= groupRepository.findById(groupId).orElseThrow(()->new GroupNotFoundException("No such group exists"));
 
-        Auction auction= auctionRepository.findByGroupAndAuctionStatus(group, AuctionStatus.OPEN).orElseThrow(()->new RuntimeException("No such auction exists"));
+        Auction auction= auctionRepository.findByGroupAndAuctionStatus(group, AuctionStatus.OPEN).orElseThrow(()->new AuctionNotFoundException("No such auction exists"));
 
         return convertToDto(auction);
     }
@@ -90,7 +91,7 @@ public class AuctionService {
     private Bid determineWinner(Auction auction){
         List<Bid> bids= bidRepository.findByAuction(auction);
         if(bids.isEmpty()){
-            throw new RuntimeException("No bids placed");
+            throw new NoBidsFoundException("No bids placed");
         }
 
         Bid winner= bids.stream()
@@ -98,17 +99,17 @@ public class AuctionService {
                         Comparator
                                 .comparing(Bid::getBidAmount)
                                 .thenComparing(Bid::getCreatedAt)
-                ).orElseThrow(()->new RuntimeException("No valid bids"));
+                ).orElseThrow(()->new InvalidBidException("No valid bids"));
 
         return winner;
     }
 
     @Transactional
     public AuctionResponseDTO closeAuction(Long auctionId){
-        Auction auction= auctionRepository.findById(auctionId).orElseThrow(()->new RuntimeException("No such auction"));
+        Auction auction= auctionRepository.findById(auctionId).orElseThrow(()->new AuctionNotFoundException("No such auction"));
 
         if(auction.getAuctionStatus()!=AuctionStatus.OPEN){
-            throw new RuntimeException("Auction is not open");
+            throw new AuctionClosedException("Auction is not open");
         }
 
         Bid winningBid= determineWinner(auction);
@@ -129,13 +130,13 @@ public class AuctionService {
 
     @Transactional
     public BidResponseDTO placeBid(PlaceBidRequestDTO request){
-        Auction auction= auctionRepository.findById(request.getAuctionId()).orElseThrow(()->new RuntimeException("No such auction"));
+        Auction auction= auctionRepository.findById(request.getAuctionId()).orElseThrow(()->new AuctionNotFoundException("No such auction"));
 
         if(auction.getAuctionStatus()!=AuctionStatus.OPEN){
-            throw new RuntimeException("Auction is not open");
+            throw new AuctionClosedException("Auction is not open");
         }
 
-        Membership membership= membershipRepository.findById(request.getMembershipId()).orElseThrow(()->new RuntimeException("No such member"));
+        Membership membership= membershipRepository.findById(request.getMembershipId()).orElseThrow(()->new MembershipNotFoundException("No such member"));
 
         if(membership.getMembershipStatus()!= MembershipStatus.ACTIVE){
             throw new RuntimeException("Membership is not Active");
@@ -146,21 +147,21 @@ public class AuctionService {
         }
 
         if(auctionRepository.existsByGroupAndWinner(auction.getGroup(), membership)){
-            throw new RuntimeException("Member already won");
+            throw new MemberAlreadyWonException("Member already won");
         }
 
         if(bidRepository.existsByAuctionAndBidderMembership(auction, membership)){
-            throw new RuntimeException("Already placed bid");
+            throw new BidAlreadyPlacedException("Already placed bid");
         }
 
         if(request.getBidAmount()<=0){
-            throw new RuntimeException("Invalid Bid");
+            throw new InvalidBidException("Invalid Bid");
         }
 
         double poolAmount= auction.getGroup().getGroupSize() * auction.getGroup().getMonthlyDepositAmount();
 
         if(request.getBidAmount()>poolAmount){
-            throw new RuntimeException("Bid is greater then pool amount");
+            throw new InvalidBidException("Bid is greater then pool amount");
         }
 
         Bid bid= new Bid();

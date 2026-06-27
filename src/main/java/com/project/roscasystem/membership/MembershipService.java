@@ -2,6 +2,7 @@ package com.project.roscasystem.membership;
 
 
 import com.project.roscasystem.common.enums.MembershipStatus;
+import com.project.roscasystem.exceptions.*;
 import com.project.roscasystem.group.Group;
 import com.project.roscasystem.group.GroupRepository;
 import com.project.roscasystem.user.User;
@@ -29,8 +30,8 @@ public class MembershipService {
 
 
 
-        User user= userRepository.findById(request.getUserId()).orElseThrow(()-> new RuntimeException("user not found"));
-        Group group= groupRepository.findById(request.getGroupId()).orElseThrow(()-> new RuntimeException(("Group not found")));
+        User user= userRepository.findById(request.getUserId()).orElseThrow(()-> new UserNotFoundException("user not found"));
+        Group group= groupRepository.findById(request.getGroupId()).orElseThrow(()-> new GroupNotFoundException(("Group not found")));
 
         checkEligibility(user,group);
 
@@ -58,7 +59,7 @@ public class MembershipService {
     private void checkEligibility(User user, Group group){
 
         if(membershipRepository.existsByUserAndGroup(user,group)){
-            throw new RuntimeException("Membership already exists");
+            throw new UserAlreadyMemberException("Membership already exists");
         }
 
         if(user.getCurrentTrustScore()<group.getRiskThreshold()){
@@ -67,7 +68,7 @@ public class MembershipService {
 
         long currentMembers= membershipRepository.countByGroup(group);
         if(currentMembers>=group.getGroupSize()){
-            throw new RuntimeException("Group is full");
+            throw new GroupFullException("Group is full");
         }
 
     }
@@ -94,14 +95,14 @@ public class MembershipService {
     }
 
     public MembershipResponseDTO getMembership(Long membershipId){
-        Membership membership= membershipRepository.findById(membershipId).orElseThrow(()-> new RuntimeException("Membership not found"));
+        Membership membership= membershipRepository.findById(membershipId).orElseThrow(()-> new MembershipNotFoundException("Membership not found"));
 
         return convertToDTO(membership);
     }
 
     public List<MembershipResponseDTO> getUserMemberships(Long userId){
 
-        User user= userRepository.findById(userId).orElseThrow(()-> new RuntimeException("user not found"));
+        User user= userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("user not found"));
 
 
         List<Membership> memberships= membershipRepository.findByUser(user);
@@ -117,7 +118,7 @@ public class MembershipService {
     }
 
     public MembershipResponseDTO updateMembershipStatus(Long membershipId, MembershipStatus status){
-        Membership membership=  membershipRepository.findById(membershipId).orElseThrow(()-> new RuntimeException("Membership not found"));
+        Membership membership=  membershipRepository.findById(membershipId).orElseThrow(()-> new MembershipNotFoundException("Membership not found"));
 
         if(membership.getMembershipStatus()==status){
             return convertToDTO(membership);
@@ -130,7 +131,7 @@ public class MembershipService {
 
     @Transactional
     public MembershipResponseDTO applyPenalty(Long membershipId, double amount){
-        Membership membership=  membershipRepository.findById(membershipId).orElseThrow(()-> new RuntimeException("Membership not found"));
+        Membership membership=  membershipRepository.findById(membershipId).orElseThrow(()-> new MembershipNotFoundException("Membership not found"));
 
         if(amount<=0){
             throw new RuntimeException("Penalty amount must be greater than 0");

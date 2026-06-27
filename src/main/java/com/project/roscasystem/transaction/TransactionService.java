@@ -1,6 +1,7 @@
 package com.project.roscasystem.transaction;
 
 import com.project.roscasystem.common.enums.TransactionType;
+import com.project.roscasystem.exceptions.MembershipNotFoundException;
 import com.project.roscasystem.membership.Membership;
 import com.project.roscasystem.membership.MembershipRepository;
 import jakarta.transaction.Transactional;
@@ -29,7 +30,7 @@ public class TransactionService {
 
     private Membership getMembership(Long membershipId){
 
-        return membershipRepository.findById(membershipId).orElseThrow(()->new RuntimeException("Membership not found"));
+        return membershipRepository.findById(membershipId).orElseThrow(()->new MembershipNotFoundException("Membership not found"));
     }
 
 
