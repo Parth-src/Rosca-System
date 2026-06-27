@@ -47,6 +47,8 @@ public class AuctionService {
         auction.setStartTime(LocalDateTime.now());
         auction.setEndTime(LocalDateTime.now().plusMinutes(group.getAuctionDurationMinutes()));
 
+
+
         auction=auctionRepository.save(auction);
 
         return convertToDto(auction);

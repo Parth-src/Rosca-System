@@ -17,7 +17,5 @@ public class UserResponseDTO {
 
     private String name;
 
-    private double trustScore;
-
-    private AccountStatus status;
+    private String email;
 }
