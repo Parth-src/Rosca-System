@@ -102,4 +102,18 @@ public class TransactionService {
                         .toList();
     }
 
+    @Transactional
+    public TransactionResponseDTO recordRecovery(Long membershipId, Double amount) {
+
+        Membership membership = getMembership(membershipId);
+
+        Transaction transaction = createTransaction(
+                membership,
+                amount,
+                TransactionType.RECOVERY
+        );
+
+        return convertToDto(transaction);
+    }
+
 }

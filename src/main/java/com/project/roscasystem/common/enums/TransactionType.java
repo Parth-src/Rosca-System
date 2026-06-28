@@ -4,5 +4,6 @@ public enum TransactionType {
     CONTRIBUTION,
     PENALTY,
     DIVIDEND,
-    ALLOCATION
+    ALLOCATION,
+    RECOVERY
 }

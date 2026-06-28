@@ -54,6 +54,7 @@ public class AuctionScheduler {
 
         LocalDateTime now = LocalDateTime.now();
         for(Auction auction : auctions){
+
             if(auction.getEndTime().isEqual(now) || auction.getEndTime().isBefore(now)){
                 try{
                     auctionService.closeAuction(auction.getId());

@@ -11,14 +11,21 @@ import com.project.roscasystem.group.Group;
 import com.project.roscasystem.group.GroupRepository;
 import com.project.roscasystem.membership.Membership;
 import com.project.roscasystem.membership.MembershipRepository;
+import com.project.roscasystem.recovery.RecoveryService;
+import com.project.roscasystem.settlement.SettlementService;
+import com.project.roscasystem.transaction.TransactionService;
+import com.project.roscasystem.user.User;
+import com.project.roscasystem.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+
+
 
 @Service
 @AllArgsConstructor
@@ -27,6 +34,8 @@ public class AuctionService {
     private final GroupRepository groupRepository;
     private final AuctionRepository auctionRepository;
     private final BidRepository bidRepository;
+    private final SettlementService settlementService;
+    private final RecoveryService recoveryService;
 
     public AuctionResponseDTO createAuction(Long groupId){
         Group group=  groupRepository.findById(groupId).orElseThrow(()->new GroupNotFoundException("No such group exists"));
@@ -93,7 +102,7 @@ public class AuctionService {
     private Bid determineWinner(Auction auction){
         List<Bid> bids= bidRepository.findByAuction(auction);
         if(bids.isEmpty()){
-            throw new NoBidsFoundException("No bids placed");
+            return null;
         }
 
         Bid winner= bids.stream()
@@ -101,7 +110,7 @@ public class AuctionService {
                         Comparator
                                 .comparing(Bid::getBidAmount)
                                 .thenComparing(Bid::getCreatedAt)
-                ).orElseThrow(()->new InvalidBidException("No valid bids"));
+                ).orElse(null);
 
         return winner;
     }
@@ -115,13 +124,55 @@ public class AuctionService {
         }
 
         Bid winningBid= determineWinner(auction);
+
+        if (winningBid == null) {
+
+            auction.setWinner(null);
+            auction.setWinningDiscountBid(0);
+            auction.setAuctionStatus(AuctionStatus.CLOSED);
+
+            Group group = auction.getGroup();
+
+            group.setCurrentCycle(group.getCurrentCycle() + 1);
+            group.updateNextAuctionTime();
+
+            groupRepository.save(group);
+            auctionRepository.save(auction);
+
+            return convertToDto(auction);
+        }
+
         auction.setWinner(winningBid.getBidderMembership());
         auction.setWinningDiscountBid(winningBid.getBidAmount());
         auction.setAuctionStatus(AuctionStatus.CLOSED);
 
-        Group group= auction.getGroup();
+        recoveryService.processRecoveries();
 
-        group.setCurrentCycle(group.getCurrentCycle()+1);
+        Group group = auction.getGroup();
+
+        double collectedAmount = settlementService.debitContributions(auction);
+
+        double winnerAmount = Math.min(
+                winningBid.getBidAmount(),
+                collectedAmount
+        );
+
+        double dividend =
+                (collectedAmount - winnerAmount)
+                        / group.getGroupSize();
+
+
+        settlementService.payWinner(
+                winningBid.getBidderMembership(),
+                winnerAmount
+        );
+
+        settlementService.distributeDividend(
+                auction,
+                dividend
+        );
+
+        group.setCurrentCycle(group.getCurrentCycle() + 1);
         group.updateNextAuctionTime();
 
         groupRepository.save(group);
@@ -193,6 +244,18 @@ public class AuctionService {
 
         );
 
+    }
+
+    public List<AuctionResponseDTO> getGroupAuctions(Long groupId) {
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new GroupNotFoundException("No such group exists"));
+
+        return auctionRepository.findByGroupOrderByCycleNumber(group)
+                .stream()
+                .map(this::convertToDto)
+                .toList();
     }
 
 

@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auctions")
@@ -30,6 +32,11 @@ public class AuctionController {
     @PatchMapping("/close/{auctionId}")
     public AuctionResponseDTO closeAuction(@PathVariable Long auctionId){
         return auctionService.closeAuction(auctionId);
+    }
+
+    @GetMapping("/group/{groupId}")
+    public List<AuctionResponseDTO> getGroupAuctions(@PathVariable Long groupId) {
+        return auctionService.getGroupAuctions(groupId);
     }
 
 

@@ -151,6 +151,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    @ExceptionHandler(InsufficiantBalanceException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInsufficiantBalanceException(InsufficiantBalanceException ex) {
+        ErrorResponseDTO error= new ErrorResponseDTO(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
 
 
     @ExceptionHandler(RuntimeException.class)

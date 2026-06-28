@@ -26,7 +26,6 @@ public class GroupService {
             group.setRiskThreshold(request.getRiskThreshold());
             group.setMonthlyDepositAmount(request.getContributionAmount());
             group.setNextAuctionTime(LocalDateTime.now());
-            group.updateNextAuctionTime();
             group.setAuctionDurationMinutes(request.getAuctionDurationMinutes());
             group.setCurrentCycle(1);
 

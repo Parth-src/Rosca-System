@@ -33,6 +33,7 @@ public class UserService {
 
         user.setName(request.getName());
         user.setEmail(request.getEmail());
+        user.setAccountBalance(10000.0);
 
         user=userRepository.save(user);
 

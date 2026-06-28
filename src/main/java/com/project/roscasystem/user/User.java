@@ -33,5 +33,7 @@ public class User extends BaseEntity {
         @Enumerated(EnumType.STRING)
         private AccountStatus accountStatus;
 
+        private double accountBalance;
+
 
 }

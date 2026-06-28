@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
-    Optional<Auction> findByGroupAndCycleNumber(Group group, int cycle);
+    List<Auction> findByGroupOrderByCycleNumber(Group group);
 
     boolean existsByGroupAndWinner(Group group, Membership membership);
 
@@ -19,6 +19,8 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     Optional<Auction> findByGroupAndAuctionStatus(Group group, AuctionStatus status);
 
     List<Auction> findByAuctionStatus(AuctionStatus status);
+
+
 
 
 
