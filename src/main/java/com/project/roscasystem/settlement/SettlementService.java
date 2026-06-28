@@ -4,6 +4,7 @@ import com.project.roscasystem.auction.Auction;
 import com.project.roscasystem.membership.Membership;
 import com.project.roscasystem.membership.MembershipRepository;
 import com.project.roscasystem.recovery.RecoveryService;
+import com.project.roscasystem.risk.RiskService;
 import com.project.roscasystem.transaction.TransactionService;
 import com.project.roscasystem.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class SettlementService {
     private final MembershipRepository membershipRepository;
     private final TransactionService transactionService;
     private final RecoveryService recoveryService;
+    private final RiskService  riskService;
 
     private double calculatePenalty(double contribution) {
         return contribution * 0.10;
@@ -50,6 +52,8 @@ public class SettlementService {
                         contribution
                 );
 
+                riskService.rewardOnTimePayment(membership);
+
                 collectedAmount += contribution;
             }
 
@@ -63,6 +67,8 @@ public class SettlementService {
                         contribution,
                         penalty
                 );
+
+                riskService.penalizeDefault(membership);
 
             }
         }

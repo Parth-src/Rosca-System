@@ -5,6 +5,7 @@ import com.project.roscasystem.common.enums.MembershipStatus;
 import com.project.roscasystem.exceptions.*;
 import com.project.roscasystem.group.Group;
 import com.project.roscasystem.group.GroupRepository;
+import com.project.roscasystem.risk.RiskService;
 import com.project.roscasystem.user.User;
 import com.project.roscasystem.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -23,6 +24,7 @@ public class MembershipService {
     private final MembershipRepository membershipRepository;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final RiskService riskService;
 
 
     @Transactional
@@ -62,7 +64,7 @@ public class MembershipService {
             throw new UserAlreadyMemberException("Membership already exists");
         }
 
-        if(user.getCurrentTrustScore()<group.getRiskThreshold()){
+        if(!riskService.canJoinGroup(user,group)){
             throw new RuntimeException("Cannot join group as the trust score is lower than the risk threshold");
         }
 

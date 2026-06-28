@@ -12,6 +12,7 @@ import com.project.roscasystem.group.GroupRepository;
 import com.project.roscasystem.membership.Membership;
 import com.project.roscasystem.membership.MembershipRepository;
 import com.project.roscasystem.recovery.RecoveryService;
+import com.project.roscasystem.risk.RiskService;
 import com.project.roscasystem.settlement.SettlementService;
 import com.project.roscasystem.transaction.TransactionService;
 import com.project.roscasystem.user.User;
@@ -36,6 +37,7 @@ public class AuctionService {
     private final BidRepository bidRepository;
     private final SettlementService settlementService;
     private final RecoveryService recoveryService;
+    private final RiskService riskService;
 
     public AuctionResponseDTO createAuction(Long groupId){
         Group group=  groupRepository.findById(groupId).orElseThrow(()->new GroupNotFoundException("No such group exists"));
@@ -191,8 +193,8 @@ public class AuctionService {
 
         Membership membership= membershipRepository.findById(request.getMembershipId()).orElseThrow(()->new MembershipNotFoundException("No such member"));
 
-        if(membership.getMembershipStatus()!= MembershipStatus.ACTIVE){
-            throw new RuntimeException("Membership is not Active");
+        if(!riskService.canBid(membership)){
+            throw new RuntimeException("Membership suspended");
         }
 
         if(!membership.getGroup().equals(auction.getGroup())){
