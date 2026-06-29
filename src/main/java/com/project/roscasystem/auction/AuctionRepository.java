@@ -20,6 +20,8 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
     List<Auction> findByAuctionStatus(AuctionStatus status);
 
+    Optional<Auction> findByWinner(Membership membership);
+
 
 
 

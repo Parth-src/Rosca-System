@@ -1,6 +1,7 @@
 package com.project.roscasystem.risk;
 
 import com.project.roscasystem.common.enums.MembershipStatus;
+import com.project.roscasystem.exceptions.UserNotFoundException;
 import com.project.roscasystem.group.Group;
 import com.project.roscasystem.membership.Membership;
 import com.project.roscasystem.membership.MembershipRepository;
@@ -10,37 +11,101 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class RiskService {
 
-    private static final double DEFAULT_PENALTY=10.0;
-    private static final double ON_TIME_REWARD=2.0;
     private static final double MAX_TRUST=100.0;
     private static final double MIN_TRUST=0;
+    private static final double PAYMENT_IMPROVEMENT = 0.015;
+    private static final double DEFAULT_MULTIPLIER = 0.92;
+    private static final double RECOVERY_IMPROVEMENT = 0.03;
+    private static final double FRAUD_MULTIPLIER = 0.75;
 
     private final UserRepository userRepository;
     private final MembershipRepository membershipRepository;
 
 
     @Transactional
-    public void rewardOnTimePayment(Membership membership) {
-        User user= membership.getUser();
+    public void contributionSuccess(Long userId){
 
-        double trust= Math.min(MAX_TRUST, user.getCurrentTrustScore()+ON_TIME_REWARD);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        double trust = user.getCurrentTrustScore();
+
+        trust = trust + (MAX_TRUST - trust) * PAYMENT_IMPROVEMENT;
+
+        trust = Math.min(MAX_TRUST, trust);
 
         user.setCurrentTrustScore(trust);
+
         userRepository.save(user);
+
+        membershipRepository.findByUser(user)
+                .forEach(this::checkMembershipEligibility);
     }
 
     @Transactional
-    public void penalizeDefault(Membership membership) {
-        User user= membership.getUser();
-        double trust= Math.min(MIN_TRUST, user.getCurrentTrustScore()-DEFAULT_PENALTY);
+    public void defaultOccurred(Long userId){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        double trust = user.getCurrentTrustScore();
+
+        trust = trust * DEFAULT_MULTIPLIER;
+
+        trust = Math.max(MIN_TRUST, trust);
 
         user.setCurrentTrustScore(trust);
+
         userRepository.save(user);
-        checkMembershipEligibility(membership);
+
+        membershipRepository.findByUser(user)
+                .forEach(this::checkMembershipEligibility);
+    }
+
+    @Transactional
+    public void recoveryCompleted(Long userId){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        double trust = user.getCurrentTrustScore();
+
+        trust = trust + (MAX_TRUST - trust) * RECOVERY_IMPROVEMENT;
+
+        trust = Math.min(MAX_TRUST, trust);
+
+        user.setCurrentTrustScore(trust);
+
+        userRepository.save(user);
+
+        membershipRepository.findByUser(user)
+                .forEach(this::checkMembershipEligibility);
+    }
+
+    @Transactional
+    public void severeViolation(Long userId){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        double trust = user.getCurrentTrustScore();
+
+        trust = trust * FRAUD_MULTIPLIER;
+
+        trust = Math.max(MIN_TRUST, trust);
+
+        user.setCurrentTrustScore(trust);
+
+        userRepository.save(user);
+
+        membershipRepository.findByUser(user)
+                .forEach(this::checkMembershipEligibility);
     }
 
 

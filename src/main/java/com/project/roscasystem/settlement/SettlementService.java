@@ -52,7 +52,7 @@ public class SettlementService {
                         contribution
                 );
 
-                riskService.rewardOnTimePayment(membership);
+                riskService.contributionSuccess(membership.getUser().getId());
 
                 collectedAmount += contribution;
             }
@@ -68,7 +68,7 @@ public class SettlementService {
                         penalty
                 );
 
-                riskService.penalizeDefault(membership);
+                riskService.defaultOccurred(membership.getUser().getId());
 
             }
         }

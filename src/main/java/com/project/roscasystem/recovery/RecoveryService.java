@@ -2,6 +2,7 @@ package com.project.roscasystem.recovery;
 
 import com.project.roscasystem.common.enums.RecoveryStatus;
 import com.project.roscasystem.membership.Membership;
+import com.project.roscasystem.risk.RiskService;
 import com.project.roscasystem.transaction.TransactionService;
 import com.project.roscasystem.wallet.WalletService;
 import jakarta.transaction.Transactional;
@@ -17,6 +18,7 @@ public class RecoveryService {
     private final RecoveryRepository recoveryRepository;
     private final WalletService walletService;
     private final TransactionService transactionService;
+    private final RiskService riskService;
 
     @Transactional
     public void createRecovery(
@@ -37,6 +39,7 @@ public class RecoveryService {
         recovery.setRecoveryStatus(RecoveryStatus.PENDING);
 
         recoveryRepository.save(recovery);
+        riskService.defaultOccurred(defaulter.getUser().getId());
     }
 
     @Transactional
@@ -67,6 +70,11 @@ public class RecoveryService {
                         totalAmount
                 );
 
+                transactionService.recordContribution(
+                        recovery.getDefaulter().getId(),
+                        recovery.getPendingContribution()
+                );
+
                 transactionService.recordPenalty(
                         recovery.getDefaulter().getId(),
                         recovery.getPenalty()
@@ -82,6 +90,7 @@ public class RecoveryService {
                 );
 
                 recoveryRepository.save(recovery);
+                riskService.recoveryCompleted(recovery.getDefaulter().getUser().getId());
             }
         }
     }
