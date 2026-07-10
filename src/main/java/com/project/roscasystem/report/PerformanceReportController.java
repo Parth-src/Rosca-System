@@ -17,6 +17,6 @@ public class PerformanceReportController {
     public PerformanceReportDTO getReport(
             @PathVariable Long membershipId){
 
-        return performanceReportService.generateReport(membershipId);
+        return performanceReportService.generatePerformanceReport(membershipId);
     }
 }
