@@ -39,9 +39,9 @@ public class AuctionController {
         return auctionService.getGroupAuctions(groupId);
     }
 
-
-
-
-
+    @GetMapping("/upcoming")
+    public List<com.project.roscasystem.group.GroupResponseDTO> getUpcomingAuctions(org.springframework.security.core.Authentication authentication) {
+        return auctionService.getUpcomingAuctions(authentication.getName());
+    }
 
 }

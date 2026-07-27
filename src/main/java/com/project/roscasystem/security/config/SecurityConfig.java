@@ -23,6 +23,8 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final com.project.roscasystem.security.oauth2.CustomOAuth2UserService customOAuth2UserService;
+    private final com.project.roscasystem.security.oauth2.OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -46,6 +48,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.cors(org.springframework.security.config.Customizer.withDefaults());
         http.csrf(customizer -> customizer.disable());
 
         http.sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -53,6 +56,11 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize ->authorize.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());
+
+        http.oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+        );
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

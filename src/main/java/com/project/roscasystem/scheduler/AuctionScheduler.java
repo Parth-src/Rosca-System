@@ -6,6 +6,8 @@ import com.project.roscasystem.auction.AuctionService;
 import com.project.roscasystem.common.enums.AuctionStatus;
 import com.project.roscasystem.group.Group;
 import com.project.roscasystem.group.GroupRepository;
+import com.project.roscasystem.notification.NotificationService;
+import com.project.roscasystem.auction.AuctionResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ public class AuctionScheduler {
     private final AuctionService auctionService;
     private final AuctionRepository  auctionRepository;
     private final GroupRepository groupRepository;
+    private final NotificationService notificationService;
     private static final Logger log = LoggerFactory.getLogger(AuctionScheduler.class);
 
     @Scheduled(fixedRate = 60000)
@@ -38,7 +41,8 @@ public class AuctionScheduler {
                     (group.getCurrentCycle()<=group.getNumberOfCycles()) ){
 
                  try {
-                     auctionService.createAuction(group.getId());
+                     AuctionResponseDTO dto = auctionService.createAuction(group.getId());
+                     notificationService.sendBidStartedAlert(group, dto.getAuctionId());
                  }
                  catch(Exception e){
                      log.error("Auction creation failed",e);
@@ -58,6 +62,7 @@ public class AuctionScheduler {
             if(auction.getEndTime().isEqual(now) || auction.getEndTime().isBefore(now)){
                 try{
                     auctionService.closeAuction(auction.getId());
+                    notificationService.sendBidEndedAlert(auction.getGroup(), auction.getId());
                 }
                 catch(Exception e){
                     log.error("Auction close failed",e);

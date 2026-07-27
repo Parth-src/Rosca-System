@@ -84,6 +84,8 @@ public class MembershipService {
         return new MembershipResponseDTO(
                 membership.getId(),
 
+                membership.getGroup().getId(),
+
                 membership.getUser().getName(),
 
                 membership.getGroup().getGroupName(),

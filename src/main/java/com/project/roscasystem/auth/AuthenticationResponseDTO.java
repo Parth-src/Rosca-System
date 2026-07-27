@@ -10,4 +10,8 @@ import lombok.*;
 public class AuthenticationResponseDTO {
 
     private String token;
+    private Long userId;
+    private String name;
+    private String email;
+    private Double accountBalance;
 }

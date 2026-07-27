@@ -13,6 +13,8 @@ import lombok.Setter;
 public class MembershipResponseDTO {
 
     private Long membershipId;
+    
+    private Long groupId;
 
     private String username;
 

@@ -31,9 +31,9 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .accountStatus(AccountStatus.ACTIVE)
                 .oAuthProvider(OAuthProvider.GOOGLE)
-                .accountBalance(10000)
-                .currentTrustScore(100)
-                .exposureLimit(10000)
+                .accountBalance(10000.0)
+                .currentTrustScore(100.0)
+                .exposureLimit(10000.0)
                 .build();
 
         userRepository.save(user);
@@ -42,6 +42,10 @@ public class AuthenticationService {
 
         return AuthenticationResponseDTO.builder()
                 .token(jwt)
+                .userId(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .accountBalance(user.getAccountBalance())
                 .build();
     }
 
@@ -61,6 +65,10 @@ public class AuthenticationService {
 
         return AuthenticationResponseDTO.builder()
                 .token(jwt)
+                .userId(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .accountBalance(user.getAccountBalance())
                 .build();
     }
 

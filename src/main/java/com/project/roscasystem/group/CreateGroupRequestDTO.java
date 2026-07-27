@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,8 +29,8 @@ public class CreateGroupRequestDTO {
     @DecimalMax("100.0")
     private Double riskThreshold;
 
-    @Positive
-    private Integer auctionDurationMinutes;
+    @NotNull(message="First auction time required")
+    private LocalDateTime firstAuctionTime;
 
     @Min(1)
     private Integer numberOfCycles;

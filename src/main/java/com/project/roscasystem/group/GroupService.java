@@ -25,8 +25,8 @@ public class GroupService {
             group.setGroupFrequency(request.getGroupFrequency());
             group.setRiskThreshold(request.getRiskThreshold());
             group.setMonthlyDepositAmount(request.getContributionAmount());
-            group.setNextAuctionTime(LocalDateTime.now());
-            group.setAuctionDurationMinutes(request.getAuctionDurationMinutes());
+            group.setNextAuctionTime(request.getFirstAuctionTime());
+            group.setAuctionDurationMinutes(30);
             group.setCurrentCycle(1);
 
             group=groupRepository.save(group);
@@ -45,7 +45,8 @@ public class GroupService {
                 group.getCurrentCycle(),
                 group.getNumberOfCycles(),
                 group.getAuctionDurationMinutes(),
-                group.getGroupFrequency()
+                group.getGroupFrequency(),
+                group.getNextAuctionTime()
         );
     }
 

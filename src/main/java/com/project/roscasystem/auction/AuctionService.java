@@ -38,6 +38,7 @@ public class AuctionService {
     private final SettlementService settlementService;
     private final RecoveryService recoveryService;
     private final RiskService riskService;
+    private final UserRepository userRepository;
 
     public AuctionResponseDTO createAuction(Long groupId){
         Group group=  groupRepository.findById(groupId).orElseThrow(()->new GroupNotFoundException("No such group exists"));
@@ -191,6 +192,10 @@ public class AuctionService {
             throw new AuctionClosedException("Auction is not open");
         }
 
+        if(LocalDateTime.now().isAfter(auction.getEndTime())){
+            throw new AuctionClosedException("The 30-minute auction window has expired.");
+        }
+
         Membership membership= membershipRepository.findById(request.getMembershipId()).orElseThrow(()->new MembershipNotFoundException("No such member"));
 
         if(!riskService.canBid(membership)){
@@ -261,5 +266,17 @@ public class AuctionService {
     }
 
 
+
+    public List<com.project.roscasystem.group.GroupResponseDTO> getUpcomingAuctions(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        return membershipRepository.findByUser(user).stream()
+                .map(Membership::getGroup)
+                .filter(g -> g.getNextAuctionTime() != null && g.getNextAuctionTime().isAfter(LocalDateTime.now()))
+                .map(g -> new com.project.roscasystem.group.GroupResponseDTO(
+                        g.getId(), g.getGroupName(), g.getGroupSize(), g.getMonthlyDepositAmount(),
+                        g.getRiskThreshold(), g.getCurrentCycle(), g.getNumberOfCycles(),
+                        g.getAuctionDurationMinutes(), g.getGroupFrequency(), g.getNextAuctionTime()))
+                .toList();
+    }
 
 }

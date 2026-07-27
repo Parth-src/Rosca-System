@@ -1,6 +1,7 @@
 package com.project.roscasystem.group;
 
 import com.project.roscasystem.common.enums.GroupFrequency;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,5 +30,7 @@ public class GroupResponseDTO {
     private Integer auctionDurationMinutes;
 
     private GroupFrequency groupFrequency;
+
+    private LocalDateTime nextAuctionTime;
 
 }
