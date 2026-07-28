@@ -1,16 +1,31 @@
-import * as React from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { AuthLayout } from "@/components/layout/auth-layout"
+import { AuthProvider, useAuth } from "@/context/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useAuth } from "@/context/AuthContext"
 import { USE_MOCK } from "@/lib/api"
+
+export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Sign in — Circl" },
+      { name: "description", content: "Sign in to manage your Circl savings circles and payouts." },
+      { property: "og:title", content: "Sign in — Circl" },
+      { property: "og:description", content: "Sign in to manage your Circl savings circles and payouts." },
+    ],
+  }),
+  component: () => (
+    <AuthProvider>
+      <LoginPage />
+    </AuthProvider>
+  ),
+})
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -18,17 +33,10 @@ const schema = z.object({
 })
 type FormValues = z.infer<typeof schema>
 
-export function LoginPage() {
+function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
-  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/dashboard"
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: USE_MOCK ? { email: "alex@circl.app", password: "demo1234" } : undefined,
   })
@@ -37,12 +45,9 @@ export function LoginPage() {
     try {
       await login(values)
       toast.success("Welcome back to Circl")
-      navigate(from, { replace: true })
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Invalid email or password"
-      toast.error(message)
+      navigate({ to: "/dashboard" })
+    } catch (err) {
+      toast.error((err as Error)?.message ?? "Invalid email or password")
     }
   }
 
@@ -59,18 +64,15 @@ export function LoginPage() {
           <Input id="password" type="password" placeholder="••••••••" autoComplete="current-password" {...register("password")} />
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
-
         <Button type="submit" size="lg" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
           Sign in
         </Button>
-
         {USE_MOCK && (
           <p className="rounded-lg bg-secondary px-3 py-2 text-center text-xs text-muted-foreground">
             Demo mode — any credentials work while the backend is offline.
           </p>
         )}
-
         <p className="text-center text-sm text-muted-foreground">
           New to Circl?{" "}
           <Link to="/register" className="font-medium text-foreground underline-offset-4 hover:underline">

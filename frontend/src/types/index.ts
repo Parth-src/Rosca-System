@@ -1,5 +1,3 @@
-// TypeScript interfaces mapped directly to backend DTOs
-
 export type GroupFrequency = "DAILY" | "WEEKLY" | "MONTHLY"
 
 export type MembershipStatus =
@@ -10,7 +8,6 @@ export type MembershipStatus =
   | "COMPLETED"
   | "LEFT"
 
-// AuthenticationResponseDTO
 export interface AuthUser {
   token: string
   userId: number
@@ -19,20 +16,17 @@ export interface AuthUser {
   accountBalance: number
 }
 
-// RegisterRequestDTO
 export interface RegisterRequest {
   name: string
   email: string
   password: string
 }
 
-// AuthenticationRequestDTO
 export interface LoginRequest {
   email: string
   password: string
 }
 
-// GroupResponseDTO
 export interface Group {
   id: number
   groupName: string
@@ -46,7 +40,6 @@ export interface Group {
   nextAuctionTime: string
 }
 
-// CreateGroupRequestDTO
 export interface CreateGroupRequest {
   groupName: string
   groupSize: number
@@ -57,7 +50,6 @@ export interface CreateGroupRequest {
   groupFrequency: GroupFrequency
 }
 
-// MembershipResponseDTO
 export interface Membership {
   membershipId: number
   groupId: number
@@ -67,16 +59,75 @@ export interface Membership {
   status: MembershipStatus
 }
 
-// JoinGroupRequestDTO
 export interface JoinGroupRequest {
-  userId: number
   groupId: number
+  userId: number
 }
 
-// DashboardSummaryDTO
 export interface DashboardSummary {
   totalSavings: number
   activeGroupsCount: number
   upcomingContribution: number
   riskScore: number
+}
+
+export interface Bid {
+  bidId: number
+  auctionId: number
+  membershipId: number
+  username: string
+  discountPercent: number
+  placedAt: string
+}
+
+export interface Auction {
+  auctionId: number
+  groupId: number
+  cycle: number
+  startTime: string
+  endTime: string
+  status: "SCHEDULED" | "LIVE" | "SETTLED"
+  bids: Bid[]
+  poolAmount: number
+  winningBid?: Bid
+}
+
+export type TransactionType =
+  | "CONTRIBUTION"
+  | "PAYOUT"
+  | "DIVIDEND"
+  | "DEPOSIT"
+  | "WITHDRAWAL"
+  | "FEE"
+
+export interface Transaction {
+  id: number
+  userId: number
+  type: TransactionType
+  amount: number
+  groupName?: string
+  description: string
+  createdAt: string
+}
+
+export interface RiskReport {
+  membershipId: number
+  trustScore: number
+  onTimeRate: number
+  defaults: number
+  auctionsWon: number
+  totalContributed: number
+  totalReceived: number
+  band: "LOW" | "MEDIUM" | "HIGH"
+}
+
+export interface PerformanceReport {
+  membershipId: number
+  totalContributed: number
+  totalReceived: number
+  netReturn: number
+  roiPercent: number
+  cyclesCompleted: number
+  cyclesRemaining: number
+  projectedPayout: number
 }

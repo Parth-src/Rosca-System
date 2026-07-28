@@ -5,29 +5,29 @@ import type { AuthUser, LoginRequest, RegisterRequest } from "@/types"
 interface AuthState {
   user: AuthUser | null
   isAuthenticated: boolean
-  isLoading: boolean
+  isReady: boolean
   login: (req: LoginRequest) => Promise<void>
   register: (req: RegisterRequest) => Promise<void>
   logout: () => void
+  refreshUser: (partial: Partial<AuthUser>) => void
 }
 
 const AuthContext = React.createContext<AuthState | undefined>(undefined)
-
 const USER_KEY = "circl_user"
 
-function loadStoredUser(): AuthUser | null {
-  try {
-    const raw = localStorage.getItem(USER_KEY)
-    if (raw && getToken()) return JSON.parse(raw) as AuthUser
-  } catch {
-    // ignore
-  }
-  return null
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<AuthUser | null>(() => loadStoredUser())
-  const [isLoading] = React.useState(false)
+  const [user, setUser] = React.useState<AuthUser | null>(null)
+  const [isReady, setIsReady] = React.useState(false)
+
+  React.useEffect(() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem(USER_KEY) : null
+      if (raw && getToken()) setUser(JSON.parse(raw) as AuthUser)
+    } catch {
+      // ignore
+    }
+    setIsReady(true)
+  }, [])
 
   const persist = React.useCallback((u: AuthUser) => {
     setToken(u.token)
@@ -35,21 +35,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(u)
   }, [])
 
-  const login = React.useCallback(
-    async (req: LoginRequest) => {
-      const u = await authApi.login(req)
-      persist(u)
-    },
-    [persist],
-  )
+  const login = React.useCallback(async (req: LoginRequest) => {
+    const u = await authApi.login(req); persist(u)
+  }, [persist])
 
-  const register = React.useCallback(
-    async (req: RegisterRequest) => {
-      const u = await authApi.register(req)
-      persist(u)
-    },
-    [persist],
-  )
+  const register = React.useCallback(async (req: RegisterRequest) => {
+    const u = await authApi.register(req); persist(u)
+  }, [persist])
 
   const logout = React.useCallback(() => {
     clearToken()
@@ -57,9 +49,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }, [])
 
+  const refreshUser = React.useCallback((partial: Partial<AuthUser>) => {
+    setUser((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, ...partial }
+      localStorage.setItem(USER_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
+
   const value = React.useMemo(
-    () => ({ user, isAuthenticated: !!user, isLoading, login, register, logout }),
-    [user, isLoading, login, register, logout],
+    () => ({ user, isAuthenticated: !!user, isReady, login, register, logout, refreshUser }),
+    [user, isReady, login, register, logout, refreshUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

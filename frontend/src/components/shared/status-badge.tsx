@@ -15,7 +15,6 @@ export function StatusBadge({ status }: { status: MembershipStatus }) {
   return <Badge variant={cfg.variant}>{cfg.label}</Badge>
 }
 
-// Derives a risk label from a group's riskThreshold (0-100).
 export function RiskBadge({ threshold }: { threshold: number }) {
   if (threshold >= 70) return <Badge variant="destructive">High Risk</Badge>
   if (threshold >= 45) return <Badge variant="warning">Medium Risk</Badge>

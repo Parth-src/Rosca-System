@@ -1,14 +1,30 @@
-import { Link, useNavigate } from "react-router-dom"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { AuthLayout } from "@/components/layout/auth-layout"
+import { AuthProvider, useAuth } from "@/context/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useAuth } from "@/context/AuthContext"
+
+export const Route = createFileRoute("/register")({
+  head: () => ({
+    meta: [
+      { title: "Create your Circl account" },
+      { name: "description", content: "Join Circl and start saving with a trusted community pool." },
+      { property: "og:title", content: "Create your Circl account" },
+      { property: "og:description", content: "Join Circl and start saving with a trusted community pool." },
+    ],
+  }),
+  component: () => (
+    <AuthProvider>
+      <RegisterPage />
+    </AuthProvider>
+  ),
+})
 
 const schema = z.object({
   name: z.string().min(2, "Enter your full name"),
@@ -17,26 +33,18 @@ const schema = z.object({
 })
 type FormValues = z.infer<typeof schema>
 
-export function RegisterPage() {
+function RegisterPage() {
   const { register: registerUser } = useAuth()
   const navigate = useNavigate()
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) })
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   const onSubmit = async (values: FormValues) => {
     try {
       await registerUser(values)
       toast.success("Your Circl account is ready")
-      navigate("/dashboard", { replace: true })
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Could not create your account"
-      toast.error(message)
+      navigate({ to: "/dashboard" })
+    } catch (err) {
+      toast.error((err as Error)?.message ?? "Could not create your account")
     }
   }
 
@@ -58,12 +66,10 @@ export function RegisterPage() {
           <Input id="password" type="password" placeholder="At least 8 characters" autoComplete="new-password" {...register("password")} />
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
-
         <Button type="submit" size="lg" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
           Create account
         </Button>
-
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
           <Link to="/login" className="font-medium text-foreground underline-offset-4 hover:underline">

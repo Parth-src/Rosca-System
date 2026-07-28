@@ -1,13 +1,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-interface RotatingWord {
-  label: string
-  native: string
-  region: string
-}
-
-const WORDS: RotatingWord[] = [
+const WORDS = [
   { label: "Chit Fund", native: "चिट फंड", region: "India" },
   { label: "Tanda", native: "Tanda", region: "Mexico" },
   { label: "Susu", native: "Susu", region: "West Africa" },
@@ -25,14 +19,10 @@ export function RotatingText({ className }: { className?: string }) {
       setIndex((i) => (i + 1) % WORDS.length)
       setVisible(true)
     }, 2500)
-    return () => {
-      clearTimeout(fadeOut)
-      clearTimeout(swap)
-    }
+    return () => { clearTimeout(fadeOut); clearTimeout(swap) }
   }, [index])
 
   const word = WORDS[index]
-
   return (
     <span
       className={cn(
