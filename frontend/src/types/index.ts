@@ -37,7 +37,8 @@ export interface Group {
   numberOfCycles: number
   auctionDurationMinutes: number
   groupFrequency: GroupFrequency
-  nextAuctionTime: string
+  nextAuctionTime: string | null
+  adminUserId: number
 }
 
 export interface CreateGroupRequest {
@@ -45,9 +46,14 @@ export interface CreateGroupRequest {
   groupSize: number
   contributionAmount: number
   riskThreshold: number
-  firstAuctionTime: string
   numberOfCycles: number
   groupFrequency: GroupFrequency
+}
+
+export interface StartGroupRequest {
+  groupId: number
+  firstAuctionTime: string
+  reduceSizeIfNeeded: boolean
 }
 
 export interface Membership {
@@ -55,7 +61,7 @@ export interface Membership {
   groupId: number
   username: string
   groupName: string
-  trustScoreAtJoining: number
+  currentTrustScore: number
   status: MembershipStatus
 }
 
@@ -76,20 +82,24 @@ export interface Bid {
   auctionId: number
   membershipId: number
   username: string
-  discountPercent: number
+  discountPercent?: number
+  bidAmount: number
   placedAt: string
 }
 
 export interface Auction {
   auctionId: number
   groupId: number
-  cycle: number
+  cycleNumber?: number
+  cycle?: number // backend uses cycleNumber, mock might use cycle
   startTime: string
   endTime: string
-  status: "SCHEDULED" | "LIVE" | "SETTLED"
+  status?: string
+  auctionStatus?: "OPEN" | "CLOSED" | "PENDING"
   bids: Bid[]
   poolAmount: number
-  winningBid?: Bid
+  winnerName?: string
+  winningDiscountBid?: number
 }
 
 export type TransactionType =

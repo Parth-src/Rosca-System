@@ -67,6 +67,8 @@ export const groupApi = {
   getOne: (id: number): Promise<Group> => (USE_MOCK ? mockApi.getGroup(id) : http(`/groups/${id}`)),
   create: (req: CreateGroupRequest): Promise<Group> =>
     USE_MOCK ? mockApi.createGroup(req) : http("/groups", { method: "POST", body: JSON.stringify(req) }),
+  start: (req: import("@/types").StartGroupRequest): Promise<Group> =>
+    USE_MOCK ? Promise.resolve({} as Group) : http("/groups/start", { method: "PATCH", body: JSON.stringify(req) }),
   remove: (id: number): Promise<{ success: true }> =>
     USE_MOCK ? mockApi.deleteGroup(id) : http(`/groups/${id}`, { method: "DELETE" }),
 }
@@ -90,16 +92,16 @@ export const dashboardApi = {
 export const auctionApi = {
   getCurrent: (groupId: number): Promise<Auction | null> =>
     USE_MOCK ? mockApi.getCurrentAuction(groupId) : http(`/auctions/current/${groupId}`),
-  placeBid: (groupId: number, discountPercent: number): Promise<Bid> =>
-    USE_MOCK
-      ? mockApi.placeBid(groupId, discountPercent)
-      : http("/auctions/bid", { method: "POST", body: JSON.stringify({ groupId, discountPercent }) }),
+  placeBid: (req: { auctionId: number; membershipId: number; bidAmount: number }): Promise<any> =>
+    USE_MOCK ? mockApi.placeBid(req) : http("/auctions/bid", { method: "POST", body: JSON.stringify(req) }),
   trigger: (groupId: number): Promise<Auction> =>
     USE_MOCK ? mockApi.triggerAuction(groupId) : http(`/auctions/${groupId}`, { method: "POST" }),
   history: (groupId: number): Promise<Auction[]> =>
     USE_MOCK ? mockApi.getAuctionHistory(groupId) : http(`/auctions/group/${groupId}`),
   upcoming: (): Promise<Auction | null> =>
     USE_MOCK ? mockApi.getUpcomingAuction() : http("/auctions/upcoming"),
+  getWinningBid: (auctionId: number): Promise<Bid | null> =>
+    USE_MOCK ? Promise.resolve(null) : http(`/auctions/${auctionId}/winning-bid`),
 }
 
 export const transactionApi = {
@@ -110,8 +112,8 @@ export const transactionApi = {
 }
 
 export const riskApi = {
-  getReport: (membershipId: number): Promise<RiskReport> =>
-    USE_MOCK ? mockApi.getRiskReport(membershipId) : http(`/risk/${membershipId}`),
+  getReport: (userId: number): Promise<RiskReport> =>
+    USE_MOCK ? mockApi.getRiskReport(userId) : http(`/risk/user/${userId}`),
   getPerformance: (membershipId: number): Promise<PerformanceReport> =>
     USE_MOCK ? mockApi.getPerformance(membershipId) : http(`/reports/performance/${membershipId}`),
 }

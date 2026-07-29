@@ -18,4 +18,8 @@ public class RiskController {
         return riskService.getRisk(membershipId);
     }
 
+    @GetMapping("/user/{userId}")
+    public UserRiskReportDTO getUserRisk(@PathVariable Long userId) {
+        return riskService.getUserRiskReport(userId);
+    }
 }

@@ -34,8 +34,8 @@ public class DashboardService {
                 .mapToDouble(Transaction::getAmount)
                 .sum();
 
-        // Dummy calculation for risk score (in a real app, this would query RiskService)
-        double riskScore = 95.0; 
+        // Fetch risk score from the user entity
+        double riskScore = user.getCurrentTrustScore(); 
         
         // Dummy calculation for upcoming contribution based on active groups
         double upcomingContribution = activeGroupsCount * 500.0; 

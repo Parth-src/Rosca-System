@@ -20,8 +20,8 @@ public class RiskService {
     private static final double MAX_TRUST=100.0;
     private static final double MIN_TRUST=0;
     private static final double PAYMENT_IMPROVEMENT = 0.015;
-    private static final double DEFAULT_MULTIPLIER = 0.92;
-    private static final double RECOVERY_IMPROVEMENT = 0.03;
+    private static final double DEFAULT_MULTIPLIER = 0.90;
+    private static final double RECOVERY_IMPROVEMENT = 0.05;
     private static final double FRAUD_MULTIPLIER = 0.75;
 
     private final UserRepository userRepository;
@@ -146,6 +146,34 @@ public class RiskService {
 
                 membership.getMembershipStatus()
 
+        );
+    }
+
+    public UserRiskReportDTO getUserRiskReport(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        
+        List<Membership> memberships = membershipRepository.findByUser(user);
+        
+        double trustScore = user.getCurrentTrustScore();
+        String band = trustScore >= 75 ? "HIGH" : trustScore >= 50 ? "MEDIUM" : "LOW";
+        double onTimeRate = trustScore >= 75 ? 0.98 : trustScore >= 50 ? 0.85 : 0.60;
+        
+        int defaults = 0; // Placeholder until default tracking is implemented
+        int auctionsWon = (int) memberships.stream().filter(m -> m.getTotalEarned() > 0).count();
+        
+        double totalReceived = memberships.stream().mapToDouble(Membership::getTotalEarned).sum();
+        double totalContributed = memberships.stream().mapToDouble(m -> m.getGroup().getMonthlyDepositAmount() * Math.max(1, m.getGroup().getCurrentCycle())).sum();
+        
+        return new UserRiskReportDTO(
+            null, // global profile doesn't map to a single membership
+            trustScore,
+            onTimeRate,
+            defaults,
+            auctionsWon,
+            totalContributed,
+            totalReceived,
+            band
         );
     }
 

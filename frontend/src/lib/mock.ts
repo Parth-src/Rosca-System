@@ -129,12 +129,24 @@ export const mockApi = {
     await delay(150)
     return auctionsByGroup[groupId] ?? null
   },
-  async placeBid(groupId: number, discountPercent: number): Promise<Bid> {
+  async placeBid(req: { auctionId: number; membershipId: number; bidAmount: number }): Promise<Bid> {
     await delay(200)
-    const auction = auctionsByGroup[groupId]
+    // Find the group id for this auction from the mock auctionsByGroup
+    const groupIdStr = Object.keys(auctionsByGroup).find(
+      k => auctionsByGroup[Number(k)]?.auctionId === req.auctionId
+    )
+    if (!groupIdStr) throw new Error("No live auction")
+    const auction = auctionsByGroup[Number(groupIdStr)]
     if (!auction) throw new Error("No live auction")
-    const bid: Bid = { bidId: nextBidId++, auctionId: auction.auctionId, membershipId: 101, username: "You", discountPercent, placedAt: new Date().toISOString() }
-    auction.bids = [bid, ...auction.bids]
+    const bid: Bid = {
+      bidId: nextBidId++,
+      auctionId: auction.auctionId,
+      membershipId: req.membershipId,
+      username: "Mock User",
+      discountPercent: req.bidAmount,
+      placedAt: new Date().toISOString(),
+    }
+    auction.bids.push(bid)
     return bid
   },
   async getTransactions(_userId: number): Promise<Transaction[]> { await delay(); return [...transactions] },

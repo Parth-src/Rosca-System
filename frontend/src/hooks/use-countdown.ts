@@ -14,7 +14,13 @@ export interface Countdown {
 export function useCountdown(target: string | Date | undefined): Countdown {
   const compute = React.useCallback((): Countdown => {
     if (!target) return { totalMs: 0, seconds: 0, minutes: 0, hours: 0, days: 0, label: "—", isSoon: false, isPast: true }
-    const end = typeof target === "string" ? new Date(target).getTime() : target.getTime()
+    let end: number
+    if (typeof target === "string") {
+      const isRawLocal = !target.endsWith("Z") && !target.includes("+") && !target.match(/-\d{2}:\d{2}$/);
+      end = new Date(isRawLocal ? target + "Z" : target).getTime()
+    } else {
+      end = target.getTime()
+    }
     const totalMs = Math.max(0, end - Date.now())
     const totalSec = Math.floor(totalMs / 1000)
     const days = Math.floor(totalSec / 86400)

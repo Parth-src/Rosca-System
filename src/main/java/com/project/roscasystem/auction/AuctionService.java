@@ -57,11 +57,13 @@ public class AuctionService {
         auction.setCycleNumber(group.getCurrentCycle());
         auction.setWinningDiscountBid(0);
         auction.setStartTime(LocalDateTime.now());
-        auction.setEndTime(LocalDateTime.now().plusMinutes(group.getAuctionDurationMinutes()));
+        auction.setEndTime(LocalDateTime.now().plusMinutes(group.getAuctionDurationMinutes() > 0 ? group.getAuctionDurationMinutes() : 15));
 
 
 
         auction=auctionRepository.save(auction);
+
+        settlementService.debitContributions(auction);
 
         return convertToDto(auction);
     }
@@ -97,7 +99,7 @@ public class AuctionService {
     public AuctionResponseDTO getCurrentAuction(Long groupId){
         Group group= groupRepository.findById(groupId).orElseThrow(()->new GroupNotFoundException("No such group exists"));
 
-        Auction auction= auctionRepository.findByGroupAndAuctionStatus(group, AuctionStatus.OPEN).orElseThrow(()->new AuctionNotFoundException("No such auction exists"));
+        Auction auction= auctionRepository.findTopByGroupOrderByCycleNumberDesc(group).orElseThrow(()->new AuctionNotFoundException("No such auction exists"));
 
         return convertToDto(auction);
     }
@@ -129,12 +131,24 @@ public class AuctionService {
         Bid winningBid= determineWinner(auction);
 
         if (winningBid == null) {
-
-            auction.setWinner(null);
-            auction.setWinningDiscountBid(0);
-            auction.setAuctionStatus(AuctionStatus.CLOSED);
-
             Group group = auction.getGroup();
+            Membership adminMembership = membershipRepository.findByGroupAndUser_Id(group, group.getAdminUserId())
+                    .orElseThrow(() -> new RuntimeException("Admin membership not found"));
+
+            auction.setWinner(adminMembership);
+            auction.setWinningDiscountBid(0); // 0 discount means full pool requested
+            auction.setAuctionStatus(AuctionStatus.CLOSED);
+            
+            recoveryService.assignBeneficiaryToRecoveries(auction, adminMembership);
+            recoveryService.processRecoveries();
+
+            double collectedAmount = group.getGroupSize() * group.getMonthlyDepositAmount();
+            
+            // Full pool goes to admin
+            settlementService.payWinner(adminMembership, collectedAmount);
+            
+            // Dividend is 0
+            settlementService.distributeDividend(auction, 0);
 
             group.setCurrentCycle(group.getCurrentCycle() + 1);
             group.updateNextAuctionTime();
@@ -149,11 +163,12 @@ public class AuctionService {
         auction.setWinningDiscountBid(winningBid.getBidAmount());
         auction.setAuctionStatus(AuctionStatus.CLOSED);
 
+        recoveryService.assignBeneficiaryToRecoveries(auction, winningBid.getBidderMembership());
         recoveryService.processRecoveries();
 
         Group group = auction.getGroup();
 
-        double collectedAmount = settlementService.debitContributions(auction);
+        double collectedAmount = group.getGroupSize() * group.getMonthlyDepositAmount();
 
         double winnerAmount = Math.min(
                 winningBid.getBidAmount(),
@@ -208,10 +223,6 @@ public class AuctionService {
 
         if(auctionRepository.existsByGroupAndWinner(auction.getGroup(), membership)){
             throw new MemberAlreadyWonException("Member already won");
-        }
-
-        if(bidRepository.existsByAuctionAndBidderMembership(auction, membership)){
-            throw new BidAlreadyPlacedException("Already placed bid");
         }
 
         if(request.getBidAmount()<=0){
@@ -275,8 +286,20 @@ public class AuctionService {
                 .map(g -> new com.project.roscasystem.group.GroupResponseDTO(
                         g.getId(), g.getGroupName(), g.getGroupSize(), g.getMonthlyDepositAmount(),
                         g.getRiskThreshold(), g.getCurrentCycle(), g.getNumberOfCycles(),
-                        g.getAuctionDurationMinutes(), g.getGroupFrequency(), g.getNextAuctionTime()))
+                        g.getAuctionDurationMinutes(), g.getGroupFrequency(), g.getNextAuctionTime(),
+                        g.getAdminUserId()))
                 .toList();
+    }
+
+    public BidResponseDTO getWinningBid(Long auctionId) {
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new AuctionNotFoundException("No such auction"));
+
+        Bid winner = determineWinner(auction);
+        if (winner == null) {
+            return null; // or throw exception, but returning null is fine if no bids yet
+        }
+        return convertToDto(winner);
     }
 
 }

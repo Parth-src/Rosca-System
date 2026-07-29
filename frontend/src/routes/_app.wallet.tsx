@@ -1,10 +1,12 @@
+import { useRef } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
-import { ArrowDown, ArrowUp } from "lucide-react"
+import { ArrowDown, ArrowUp, Download } from "lucide-react"
 import { transactionApi } from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 import { PageHeader } from "@/components/shared/page-header"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -40,9 +42,37 @@ function WalletPage() {
     queryFn: () => transactionApi.getForUser(user!.userId),
     enabled: !!user,
   })
+  const tableRef = useRef<HTMLDivElement>(null)
 
   const inflow = (txs.data ?? []).filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0)
   const outflow = (txs.data ?? []).filter((t) => t.amount < 0).reduce((s, t) => s + t.amount, 0)
+
+  const handleExportCSV = () => {
+    if (!txs.data) return
+
+    const headers = ["Date", "Description", "Circle", "Type", "Amount"]
+    const rows = txs.data.map(t => [
+      new Date(t.createdAt).toLocaleString(),
+      `"${t.description}"`,
+      `"${t.groupName || ''}"`,
+      TYPE_LABEL[t.type],
+      t.amount
+    ])
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(r => r.join(","))
+    ].join("\n")
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.setAttribute("href", url)
+    link.setAttribute("download", "circl-transactions.csv")
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   return (
     <>
@@ -54,7 +84,13 @@ function WalletPage() {
         <BalanceCard label="Total outflow" value={formatCurrency(Math.abs(outflow))} tone="warning" icon={ArrowUp} />
       </div>
 
-      <Card className="mt-6">
+      <Card className="mt-6" ref={tableRef}>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-xl font-serif">Transactions</CardTitle>
+          <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-2">
+            <Download className="h-4 w-4" /> Export as CSV
+          </Button>
+        </CardHeader>
         <CardContent className="p-0">
           {txs.isLoading ? (
             <div className="space-y-2 p-6">
@@ -64,16 +100,16 @@ function WalletPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
+                  <TableHead className="pl-6">Date</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead className="text-right pr-6">Amount</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {(txs.data ?? []).map((t) => (
                   <TableRow key={t.id}>
-                    <TableCell className="text-sm text-muted-foreground">{formatDateTime(t.createdAt)}</TableCell>
+                    <TableCell className="pl-6 text-sm text-muted-foreground">{formatDateTime(t.createdAt)}</TableCell>
                     <TableCell>
                       <div>
                         <p className="font-medium">{t.description}</p>
@@ -82,7 +118,7 @@ function WalletPage() {
                     </TableCell>
                     <TableCell><Badge variant="outline">{TYPE_LABEL[t.type]}</Badge></TableCell>
                     <TableCell className={cn(
-                      "text-right font-serif text-base font-semibold tabular-nums",
+                      "pr-6 text-right font-serif text-base font-semibold tabular-nums",
                       t.amount >= 0 ? "text-success" : "text-foreground",
                     )}>
                       {t.amount >= 0 ? "+" : ""}{formatCurrency(t.amount)}

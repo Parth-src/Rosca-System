@@ -44,4 +44,9 @@ public class AuctionController {
         return auctionService.getUpcomingAuctions(authentication.getName());
     }
 
+    @GetMapping("/{auctionId}/winning-bid")
+    public BidResponseDTO getWinningBid(@PathVariable Long auctionId) {
+        return auctionService.getWinningBid(auctionId);
+    }
+
 }

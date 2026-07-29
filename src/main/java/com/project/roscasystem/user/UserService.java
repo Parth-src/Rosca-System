@@ -20,7 +20,9 @@ public class UserService {
 
                 user.getId(),
                 user.getName(),
-                user.getEmail()
+                user.getEmail(),
+                user.getAccountBalance(),
+                user.getCurrentTrustScore()
 
         );
     }
@@ -54,6 +56,11 @@ public class UserService {
     }
 
 
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+    }
 
     public List<UserResponseDTO> getAllUsers(){
 

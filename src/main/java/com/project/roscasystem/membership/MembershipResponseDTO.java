@@ -20,7 +20,7 @@ public class MembershipResponseDTO {
 
     private String groupName;
 
-    private double trustScoreAtJoining;
+    private double currentTrustScore;
 
     private MembershipStatus status;
 }

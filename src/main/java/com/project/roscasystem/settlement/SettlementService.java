@@ -34,8 +34,6 @@ public class SettlementService {
         double contribution =
                 auction.getGroup().getMonthlyDepositAmount();
 
-        double collectedAmount=0;
-
         for (Membership membership : memberships) {
 
             if (walletService.hasSufficientBalance(
@@ -53,8 +51,6 @@ public class SettlementService {
                 );
 
                 riskService.contributionSuccess(membership.getUser().getId());
-
-                collectedAmount += contribution;
             }
 
             else {
@@ -62,7 +58,7 @@ public class SettlementService {
 
                 recoveryService.createRecovery(
                         membership,
-                        auction.getWinner(),
+                        null, // Winner is unknown before auction starts
                         auction,
                         contribution,
                         penalty
@@ -73,7 +69,9 @@ public class SettlementService {
             }
         }
 
-        return collectedAmount;
+        // Return the full pool size as if everyone paid. 
+        // The system absorbs the missing contributions temporarily.
+        return memberships.size() * contribution;
     }
 
     public void payWinner(Membership winner, double amount) {
@@ -87,9 +85,15 @@ public class SettlementService {
                 winner.getId(),
                 amount
         );
+        
+        winner.setTotalEarned(winner.getTotalEarned() + amount);
+        membershipRepository.save(winner);
     }
 
     public void distributeDividend(Auction auction, double dividend) {
+        if (dividend <= 0) {
+            return;
+        }
 
         List<Membership> memberships =
                 membershipRepository.findByGroup(auction.getGroup());
@@ -105,7 +109,9 @@ public class SettlementService {
                     membership.getId(),
                     dividend
             );
+            
+            membership.setTotalEarned(membership.getTotalEarned() + dividend);
+            membershipRepository.save(membership);
         }
     }
-
 }

@@ -51,12 +51,20 @@ public class AuthenticationService {
 
     public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) {
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Invalid email or password");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unknown error during authentication: " + e.getMessage());
+        }
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();

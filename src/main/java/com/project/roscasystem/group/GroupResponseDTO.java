@@ -33,4 +33,6 @@ public class GroupResponseDTO {
 
     private LocalDateTime nextAuctionTime;
 
+    private Long adminUserId;
+
 }

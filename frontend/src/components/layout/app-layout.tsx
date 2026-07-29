@@ -4,6 +4,8 @@ import { LayoutDashboard, UsersRound, Wallet, UserRound, LogOut, Menu, X } from 
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/context/AuthContext"
 import { Logo } from "@/components/shared/logo"
+import { userApi } from "@/lib/api"
+import { useQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/circl-utils"
 
@@ -13,6 +15,25 @@ const NAV = [
   { to: "/wallet", label: "Wallet", icon: Wallet },
   { to: "/profile", label: "Profile", icon: UserRound },
 ] as const
+
+function BalanceRefresher() {
+  const { user, refreshUser } = useAuth()
+  
+  const q = useQuery({
+    queryKey: ["currentUser", user?.userId],
+    queryFn: () => userApi.get(user!.userId),
+    enabled: !!user?.userId,
+    refetchInterval: 3000,
+  })
+
+  React.useEffect(() => {
+    if (q.data && user && q.data.accountBalance !== user.accountBalance) {
+      refreshUser({ accountBalance: q.data.accountBalance })
+    }
+  }, [q.data, user, refreshUser])
+
+  return null
+}
 
 function NavItems({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
@@ -72,7 +93,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col lg:flex-row bg-background">
+      <BalanceRefresher />
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-border bg-card/60 p-4 lg:flex">
         <Link to="/dashboard" className="px-2 py-3">
           <Logo />

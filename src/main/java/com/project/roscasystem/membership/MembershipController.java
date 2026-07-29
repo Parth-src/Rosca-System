@@ -23,6 +23,11 @@ public class MembershipController {
         return membershipService.getMembership(membershipId);
     }
 
+    @GetMapping("/group/{groupId}")
+    public List<MembershipResponseDTO> getGroupRoster(@PathVariable Long groupId){
+        return membershipService.getGroupRoster(groupId);
+    }
+
     @GetMapping("/user/{userId}")
     public List<MembershipResponseDTO> getUserMemberships( @PathVariable Long userId){
         return membershipService.getUserMemberships(userId);

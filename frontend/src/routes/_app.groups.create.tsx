@@ -37,7 +37,6 @@ const schema = z.object({
   contributionAmount: z.number().int().min(10).max(10000),
   groupFrequency: z.enum(["DAILY", "WEEKLY", "MONTHLY"]),
   riskThreshold: z.number().int().min(0).max(100),
-  firstAuctionTime: z.string().min(1, "Pick a start time"),
 })
 type FormValues = z.infer<typeof schema>
 
@@ -48,11 +47,7 @@ function CreateGroupPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
 
-  const defaultStart = React.useMemo(() => {
-    const d = new Date(Date.now() + 24 * 3600 * 1000)
-    d.setMinutes(0, 0, 0)
-    return d.toISOString().slice(0, 16)
-  }, [])
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -64,14 +59,13 @@ function CreateGroupPage() {
       contributionAmount: 200,
       groupFrequency: "MONTHLY",
       riskThreshold: 50,
-      firstAuctionTime: defaultStart,
     },
   })
 
   const values = form.watch()
 
   const create = useMutation({
-    mutationFn: (v: FormValues) => groupApi.create({ ...v, firstAuctionTime: new Date(v.firstAuctionTime).toISOString() }),
+    mutationFn: (v: FormValues) => groupApi.create({ ...v }),
     onSuccess: (g) => {
       qc.invalidateQueries({ queryKey: ["groups"] })
       toast.success("Your circle is ready")
@@ -83,7 +77,7 @@ function CreateGroupPage() {
   const stepFields: Record<number, (keyof FormValues)[]> = {
     0: ["groupName", "groupSize", "numberOfCycles"],
     1: ["contributionAmount", "groupFrequency"],
-    2: ["riskThreshold", "firstAuctionTime"],
+    2: ["riskThreshold"],
     3: [],
   }
 
@@ -190,9 +184,7 @@ function CreateGroupPage() {
                   <span>Open to all</span><span>Balanced</span><span>Strict</span>
                 </div>
               </Field>
-              <Field label="First auction" error={form.formState.errors.firstAuctionTime?.message}>
-                <Input type="datetime-local" {...form.register("firstAuctionTime")} />
-              </Field>
+
             </div>
           )}
 
@@ -206,7 +198,7 @@ function CreateGroupPage() {
                 <Row k="Contribution" v={formatCurrency(values.contributionAmount)} />
                 <Row k="Cadence" v={formatFrequency(values.groupFrequency)} />
                 <Row k="Trust threshold" v={`${values.riskThreshold}/100`} />
-                <Row k="First auction" v={new Date(values.firstAuctionTime).toLocaleString()} />
+
                 <Row k="Total pool per cycle" v={formatCurrency(values.contributionAmount * values.groupSize)} />
               </dl>
             </div>

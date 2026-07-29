@@ -65,11 +65,6 @@ public class RecoveryService {
                         totalAmount
                 );
 
-                walletService.credit(
-                        recovery.getBeneficiary().getUser(),
-                        totalAmount
-                );
-
                 transactionService.recordContribution(
                         recovery.getDefaulter().getId(),
                         recovery.getPendingContribution()
@@ -80,10 +75,16 @@ public class RecoveryService {
                         recovery.getPenalty()
                 );
 
-                transactionService.recordRecovery(
-                        recovery.getBeneficiary().getId(),
-                        totalAmount
-                );
+                if (recovery.getBeneficiary() != null) {
+                    walletService.credit(
+                            recovery.getBeneficiary().getUser(),
+                            totalAmount
+                    );
+                    transactionService.recordRecovery(
+                            recovery.getBeneficiary().getId(),
+                            totalAmount
+                    );
+                }
 
                 recovery.setRecoveryStatus(
                         RecoveryStatus.COMPLETED
@@ -91,6 +92,17 @@ public class RecoveryService {
 
                 recoveryRepository.save(recovery);
                 riskService.recoveryCompleted(recovery.getDefaulter().getUser().getId());
+            }
+        }
+    }
+
+    @Transactional
+    public void assignBeneficiaryToRecoveries(com.project.roscasystem.auction.Auction auction, Membership winner) {
+        List<Recovery> recoveries = recoveryRepository.findByRecoveryStatus(RecoveryStatus.PENDING);
+        for (Recovery recovery : recoveries) {
+            if (recovery.getAuction().equals(auction) && recovery.getBeneficiary() == null) {
+                recovery.setBeneficiary(winner);
+                recoveryRepository.save(recovery);
             }
         }
     }

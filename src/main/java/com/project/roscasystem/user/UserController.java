@@ -42,6 +42,14 @@ public class UserController {
     }
 
 
+    @GetMapping("/me")
+    public UserResponseDTO getCurrentUser(org.springframework.security.core.Authentication authentication) {
+        String email = authentication.getName();
+        com.project.roscasystem.user.User user = userService.getUserByEmail(email);
+        return userService.getUser(user.getId());
+    }
+
+
 
 
     @GetMapping

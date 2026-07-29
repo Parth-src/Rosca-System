@@ -18,4 +18,8 @@ public class UserResponseDTO {
     private String name;
 
     private String email;
+
+    private double accountBalance;
+    
+    private double currentTrustScore;
 }

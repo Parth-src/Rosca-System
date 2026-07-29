@@ -36,7 +36,8 @@ public class AuctionScheduler {
 
         for(Group group : groups){
 
-            if((group.getNextAuctionTime().isBefore(now) || group.getNextAuctionTime().isEqual(now)) &&
+            if(group.getNextAuctionTime() != null &&
+                    (group.getNextAuctionTime().isBefore(now) || group.getNextAuctionTime().isEqual(now)) &&
                     (!auctionRepository.existsByGroupAndAuctionStatus(group, AuctionStatus.OPEN))&&
                     (group.getCurrentCycle()<=group.getNumberOfCycles()) ){
 

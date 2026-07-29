@@ -7,7 +7,13 @@ export function formatCurrency(value: number, currency = "USD") {
 }
 
 export function formatDateTime(value: string | Date) {
-  const d = typeof value === "string" ? new Date(value) : value
+  let d: Date
+  if (typeof value === "string") {
+    const isRawLocal = !value.endsWith("Z") && !value.includes("+") && !value.match(/-\d{2}:\d{2}$/);
+    d = new Date(isRawLocal ? value + "Z" : value)
+  } else {
+    d = value
+  }
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",

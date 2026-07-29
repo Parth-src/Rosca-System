@@ -35,8 +35,13 @@ public class TransactionService {
 
 
     private Transaction createTransaction(Membership membership, double amount, TransactionType transactionType){
-        if(amount<=0){
-            throw new RuntimeException("Amount must be greater than 0");
+        if(amount == 0){
+            throw new RuntimeException("Amount must not be 0");
+        }
+
+        amount = Math.abs(amount);
+        if (transactionType == TransactionType.CONTRIBUTION || transactionType == TransactionType.PENALTY) {
+            amount = -amount;
         }
 
         Transaction transaction = new Transaction();
@@ -44,7 +49,7 @@ public class TransactionService {
         transaction.setAmount(amount);
         transaction.setTransactionType(transactionType);
 
-            return transactionRepository.save(transaction);
+        return transactionRepository.save(transaction);
     }
 
 

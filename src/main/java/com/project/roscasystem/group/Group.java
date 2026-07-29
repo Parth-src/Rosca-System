@@ -62,4 +62,6 @@ public class Group  extends BaseEntity {
 
     private Integer auctionDurationMinutes;
 
+    private Long adminUserId;
+
 }

@@ -9,21 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppWalletRouteImport } from './routes/_app.wallet'
-import { Route as AppProfileRouteImport } from './routes/_app.profile'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppProfileRouteImport } from './routes/_app.profile'
+import { Route as AppWalletRouteImport } from './routes/_app.wallet'
+import { Route as Oauth2RedirectRouteImport } from './routes/oauth2.redirect'
 import { Route as AppGroupsIndexRouteImport } from './routes/_app.groups.index'
-import { Route as AppGroupsCreateRouteImport } from './routes/_app.groups.create'
 import { Route as AppGroupsIdRouteImport } from './routes/_app.groups.$id'
-import { Route as AppGroupsIdAuctionRouteImport } from './routes/_app.groups.$id.auction'
+import { Route as AppGroupsCreateRouteImport } from './routes/_app.groups.create'
+import { Route as AppGroupsIdAuctionRouteImport } from './routes/_app.groups_.$id.auction'
 
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -31,18 +36,14 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppWalletRoute = AppWalletRouteImport.update({
-  id: '/wallet',
-  path: '/wallet',
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProfileRoute = AppProfileRouteImport.update({
@@ -50,19 +51,19 @@ const AppProfileRoute = AppProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
-const AppDashboardRoute = AppDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AppWalletRoute = AppWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
   getParentRoute: () => AppRoute,
+} as any)
+const Oauth2RedirectRoute = Oauth2RedirectRouteImport.update({
+  id: '/oauth2/redirect',
+  path: '/oauth2/redirect',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppGroupsIndexRoute = AppGroupsIndexRouteImport.update({
   id: '/groups/',
   path: '/groups/',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppGroupsCreateRoute = AppGroupsCreateRouteImport.update({
-  id: '/groups/create',
-  path: '/groups/create',
   getParentRoute: () => AppRoute,
 } as any)
 const AppGroupsIdRoute = AppGroupsIdRouteImport.update({
@@ -70,10 +71,15 @@ const AppGroupsIdRoute = AppGroupsIdRouteImport.update({
   path: '/groups/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppGroupsCreateRoute = AppGroupsCreateRouteImport.update({
+  id: '/groups/create',
+  path: '/groups/create',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppGroupsIdAuctionRoute = AppGroupsIdAuctionRouteImport.update({
-  id: '/auction',
-  path: '/auction',
-  getParentRoute: () => AppGroupsIdRoute,
+  id: '/groups_/$id/auction',
+  path: '/groups/$id/auction',
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -83,7 +89,8 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/profile': typeof AppProfileRoute
   '/wallet': typeof AppWalletRoute
-  '/groups/$id': typeof AppGroupsIdRouteWithChildren
+  '/oauth2/redirect': typeof Oauth2RedirectRoute
+  '/groups/$id': typeof AppGroupsIdRoute
   '/groups/create': typeof AppGroupsCreateRoute
   '/groups/': typeof AppGroupsIndexRoute
   '/groups/$id/auction': typeof AppGroupsIdAuctionRoute
@@ -95,7 +102,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/profile': typeof AppProfileRoute
   '/wallet': typeof AppWalletRoute
-  '/groups/$id': typeof AppGroupsIdRouteWithChildren
+  '/oauth2/redirect': typeof Oauth2RedirectRoute
+  '/groups/$id': typeof AppGroupsIdRoute
   '/groups/create': typeof AppGroupsCreateRoute
   '/groups': typeof AppGroupsIndexRoute
   '/groups/$id/auction': typeof AppGroupsIdAuctionRoute
@@ -109,10 +117,11 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/wallet': typeof AppWalletRoute
-  '/_app/groups/$id': typeof AppGroupsIdRouteWithChildren
+  '/oauth2/redirect': typeof Oauth2RedirectRoute
+  '/_app/groups/$id': typeof AppGroupsIdRoute
   '/_app/groups/create': typeof AppGroupsCreateRoute
   '/_app/groups/': typeof AppGroupsIndexRoute
-  '/_app/groups/$id/auction': typeof AppGroupsIdAuctionRoute
+  '/_app/groups_/$id/auction': typeof AppGroupsIdAuctionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/profile'
     | '/wallet'
+    | '/oauth2/redirect'
     | '/groups/$id'
     | '/groups/create'
     | '/groups/'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/profile'
     | '/wallet'
+    | '/oauth2/redirect'
     | '/groups/$id'
     | '/groups/create'
     | '/groups'
@@ -148,10 +159,11 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/profile'
     | '/_app/wallet'
+    | '/oauth2/redirect'
     | '/_app/groups/$id'
     | '/_app/groups/create'
     | '/_app/groups/'
-    | '/_app/groups/$id/auction'
+    | '/_app/groups_/$id/auction'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -159,22 +171,16 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  Oauth2RedirectRoute: typeof Oauth2RedirectRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app': {
@@ -184,18 +190,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/wallet': {
-      id: '/_app/wallet'
-      path: '/wallet'
-      fullPath: '/wallet'
-      preLoaderRoute: typeof AppWalletRouteImport
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profile': {
@@ -205,25 +218,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/dashboard': {
-      id: '/_app/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AppDashboardRouteImport
+    '/_app/wallet': {
+      id: '/_app/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof AppWalletRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/oauth2/redirect': {
+      id: '/oauth2/redirect'
+      path: '/oauth2/redirect'
+      fullPath: '/oauth2/redirect'
+      preLoaderRoute: typeof Oauth2RedirectRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/groups/': {
       id: '/_app/groups/'
       path: '/groups'
       fullPath: '/groups/'
       preLoaderRoute: typeof AppGroupsIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/groups/create': {
-      id: '/_app/groups/create'
-      path: '/groups/create'
-      fullPath: '/groups/create'
-      preLoaderRoute: typeof AppGroupsCreateRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/groups/$id': {
@@ -233,44 +246,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGroupsIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/groups/$id/auction': {
-      id: '/_app/groups/$id/auction'
-      path: '/auction'
+    '/_app/groups/create': {
+      id: '/_app/groups/create'
+      path: '/groups/create'
+      fullPath: '/groups/create'
+      preLoaderRoute: typeof AppGroupsCreateRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/groups_/$id/auction': {
+      id: '/_app/groups_/$id/auction'
+      path: '/groups/$id/auction'
       fullPath: '/groups/$id/auction'
       preLoaderRoute: typeof AppGroupsIdAuctionRouteImport
-      parentRoute: typeof AppGroupsIdRoute
+      parentRoute: typeof AppRoute
     }
   }
 }
-
-interface AppGroupsIdRouteChildren {
-  AppGroupsIdAuctionRoute: typeof AppGroupsIdAuctionRoute
-}
-
-const AppGroupsIdRouteChildren: AppGroupsIdRouteChildren = {
-  AppGroupsIdAuctionRoute: AppGroupsIdAuctionRoute,
-}
-
-const AppGroupsIdRouteWithChildren = AppGroupsIdRoute._addFileChildren(
-  AppGroupsIdRouteChildren,
-)
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppProfileRoute: typeof AppProfileRoute
   AppWalletRoute: typeof AppWalletRoute
-  AppGroupsIdRoute: typeof AppGroupsIdRouteWithChildren
+  AppGroupsIdRoute: typeof AppGroupsIdRoute
   AppGroupsCreateRoute: typeof AppGroupsCreateRoute
   AppGroupsIndexRoute: typeof AppGroupsIndexRoute
+  AppGroupsIdAuctionRoute: typeof AppGroupsIdAuctionRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppProfileRoute: AppProfileRoute,
   AppWalletRoute: AppWalletRoute,
-  AppGroupsIdRoute: AppGroupsIdRouteWithChildren,
+  AppGroupsIdRoute: AppGroupsIdRoute,
   AppGroupsCreateRoute: AppGroupsCreateRoute,
   AppGroupsIndexRoute: AppGroupsIndexRoute,
+  AppGroupsIdAuctionRoute: AppGroupsIdAuctionRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -280,7 +290,18 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  Oauth2RedirectRoute: Oauth2RedirectRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

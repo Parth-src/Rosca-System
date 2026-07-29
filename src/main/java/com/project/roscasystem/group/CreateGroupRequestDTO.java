@@ -29,8 +29,7 @@ public class CreateGroupRequestDTO {
     @DecimalMax("100.0")
     private Double riskThreshold;
 
-    @NotNull(message="First auction time required")
-    private LocalDateTime firstAuctionTime;
+
 
     @Min(1)
     private Integer numberOfCycles;

@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_app/profile")({
 
 function ProfilePage() {
   const { user } = useAuth()
-  const report = useQuery({ queryKey: ["risk", 101], queryFn: () => riskApi.getReport(101) })
+  const report = useQuery({ queryKey: ["risk", user?.userId], queryFn: () => riskApi.getReport(user!.userId), enabled: !!user })
 
   const bandTone = report.data?.band === "LOW" ? "success" : report.data?.band === "MEDIUM" ? "warning" : "destructive"
   const initials = user?.name?.split(" ").map((p) => p[0]).slice(0, 2).join("") ?? "U"

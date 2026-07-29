@@ -90,7 +90,7 @@ public class MembershipService {
 
                 membership.getGroup().getGroupName(),
 
-                membership.getTrustScoreAtJoining(),
+                membership.getUser().getCurrentTrustScore(),
 
                 membership.getMembershipStatus()
         );
@@ -119,6 +119,15 @@ public class MembershipService {
 
         return reponse;
 
+    }
+
+    public List<MembershipResponseDTO> getGroupRoster(Long groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException("Group not found"));
+
+        return membershipRepository.findByGroup(group).stream()
+                .map(this::convertToDTO)
+                .toList();
     }
 
     public MembershipResponseDTO updateMembershipStatus(Long membershipId, MembershipStatus status){

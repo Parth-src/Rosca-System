@@ -22,7 +22,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
     Optional<Auction> findByWinner(Membership membership);
 
-
+    Optional<Auction> findTopByGroupOrderByCycleNumberDesc(Group group);
 
 
 
