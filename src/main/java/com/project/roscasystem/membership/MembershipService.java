@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+
 import java.util.List;
 
 
@@ -113,7 +113,7 @@ public class MembershipService {
 
         List<MembershipResponseDTO> reponse=
                 memberships.stream()
-                        .filter(membership -> membership.getMembershipStatus().equals(MembershipStatus.ACTIVE))
+                        .filter(membership -> !membership.getMembershipStatus().equals(MembershipStatus.LEFT))
                         .map(this::convertToDTO)
                         .toList();
 

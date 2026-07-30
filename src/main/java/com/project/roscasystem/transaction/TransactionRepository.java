@@ -1,6 +1,6 @@
 package com.project.roscasystem.transaction;
 
-import com.project.roscasystem.common.enums.TransactionType;
+
 import com.project.roscasystem.membership.Membership;
 import org.springframework.data.jpa.repository.JpaRepository;
 

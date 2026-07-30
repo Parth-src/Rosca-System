@@ -11,7 +11,7 @@ export interface Countdown {
   isPast: boolean
 }
 
-export function useCountdown(target: string | Date | undefined): Countdown {
+export function useCountdown(target: string | Date | null | undefined): Countdown {
   const compute = React.useCallback((): Countdown => {
     if (!target) return { totalMs: 0, seconds: 0, minutes: 0, hours: 0, days: 0, label: "—", isSoon: false, isPast: true }
     let end: number

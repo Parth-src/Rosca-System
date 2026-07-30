@@ -38,7 +38,7 @@ export interface Group {
   auctionDurationMinutes: number
   groupFrequency: GroupFrequency
   nextAuctionTime: string | null
-  adminUserId: number
+  adminUserId?: number
 }
 
 export interface CreateGroupRequest {
@@ -48,6 +48,7 @@ export interface CreateGroupRequest {
   riskThreshold: number
   numberOfCycles: number
   groupFrequency: GroupFrequency
+  firstAuctionTime?: string
 }
 
 export interface StartGroupRequest {
@@ -61,7 +62,8 @@ export interface Membership {
   groupId: number
   username: string
   groupName: string
-  currentTrustScore: number
+  currentTrustScore?: number
+  trustScoreAtJoining?: number
   status: MembershipStatus
 }
 
@@ -104,19 +106,23 @@ export interface Auction {
 
 export type TransactionType =
   | "CONTRIBUTION"
+  | "ALLOCATION"
   | "PAYOUT"
   | "DIVIDEND"
+  | "PENALTY"
+  | "RECOVERY"
   | "DEPOSIT"
   | "WITHDRAWAL"
   | "FEE"
 
 export interface Transaction {
   id: number
-  userId: number
-  type: TransactionType
+  userId?: number
+  type?: TransactionType
+  transactionType?: TransactionType
   amount: number
   groupName?: string
-  description: string
+  description?: string
   createdAt: string
 }
 

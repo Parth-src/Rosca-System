@@ -40,7 +40,8 @@ async function http<T>(path: string, init: RequestInit = {}): Promise<T> {
     ...(init.headers as Record<string, string> | undefined),
   }
   if (token) headers.Authorization = `Bearer ${token}`
-  const res = await fetch(`${API_BASE_URL}/api${path}`, { ...init, headers })
+  const baseUrl = API_BASE_URL?.endsWith("/api") ? API_BASE_URL : `${API_BASE_URL}/api`
+  const res = await fetch(`${baseUrl}${path}`, { ...init, headers })
   if (res.status === 401) clearToken()
   if (!res.ok) throw new Error((await res.text()) || res.statusText)
   return res.json() as Promise<T>

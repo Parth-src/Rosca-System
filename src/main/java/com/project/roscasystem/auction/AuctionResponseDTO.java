@@ -1,6 +1,6 @@
 package com.project.roscasystem.auction;
 
-import com.project.roscasystem.common.enums.AccountStatus;
+
 import com.project.roscasystem.common.enums.AuctionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

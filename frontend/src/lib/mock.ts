@@ -52,9 +52,9 @@ const auctionsByGroup: Record<number, Auction> = {
   1: {
     auctionId: 9001, groupId: 1, cycle: 4, startTime: hoursFromNow(-0.05), endTime: hoursFromNow(0.4), status: "LIVE", poolAmount: 6000,
     bids: [
-      { bidId: 1, auctionId: 9001, membershipId: 111, username: "Priya Nair", discountPercent: 12, placedAt: hoursFromNow(-0.03) },
-      { bidId: 2, auctionId: 9001, membershipId: 113, username: "Sana Kapoor", discountPercent: 15, placedAt: hoursFromNow(-0.02) },
-      { bidId: 3, auctionId: 9001, membershipId: 112, username: "Arjun Mehta", discountPercent: 18, placedAt: hoursFromNow(-0.01) },
+      { bidId: 1, auctionId: 9001, membershipId: 111, username: "Priya Nair", discountPercent: 12, bidAmount: 5280, placedAt: hoursFromNow(-0.03) },
+      { bidId: 2, auctionId: 9001, membershipId: 113, username: "Sana Kapoor", discountPercent: 15, bidAmount: 5100, placedAt: hoursFromNow(-0.02) },
+      { bidId: 3, auctionId: 9001, membershipId: 112, username: "Arjun Mehta", discountPercent: 18, bidAmount: 4920, placedAt: hoursFromNow(-0.01) },
     ],
   },
 }
@@ -98,7 +98,7 @@ export const mockApi = {
       id: nextGroupId++, groupName: req.groupName, groupSize: req.groupSize,
       contributionAmount: req.contributionAmount, riskThreshold: req.riskThreshold,
       currentCycle: 0, numberOfCycles: req.numberOfCycles, auctionDurationMinutes: 30,
-      groupFrequency: req.groupFrequency, nextAuctionTime: req.firstAuctionTime,
+      groupFrequency: req.groupFrequency, nextAuctionTime: req.firstAuctionTime ?? null,
     }
     groups = [g, ...groups]; return g
   },
@@ -144,6 +144,7 @@ export const mockApi = {
       membershipId: req.membershipId,
       username: "Mock User",
       discountPercent: req.bidAmount,
+      bidAmount: req.bidAmount,
       placedAt: new Date().toISOString(),
     }
     auction.bids.push(bid)
@@ -204,15 +205,15 @@ export const mockApi = {
   async getAuctionHistory(groupId: number): Promise<Auction[]> {
     await delay()
     const current = auctionsByGroup[groupId]
+    const cycleNum = current?.cycle ?? 1
     const past: Auction[] = current
-      ? Array.from({ length: Math.max(0, current.cycle - 1) }, (_, i) => ({
+      ? Array.from({ length: Math.max(0, cycleNum - 1) }, (_, i) => ({
           auctionId: 8000 + i, groupId, cycle: i + 1,
-          startTime: hoursFromNow(-24 * (current.cycle - i) * 7),
-          endTime: hoursFromNow(-24 * (current.cycle - i) * 7 + 0.5),
+          startTime: hoursFromNow(-24 * (cycleNum - i) * 7),
+          endTime: hoursFromNow(-24 * (cycleNum - i) * 7 + 0.5),
           status: "SETTLED",
           poolAmount: current.poolAmount,
           bids: [],
-          winningBid: { bidId: 7000 + i, auctionId: 8000 + i, membershipId: 111, username: "Priya Nair", discountPercent: 10 + i, placedAt: hoursFromNow(-24 * (current.cycle - i) * 7 + 0.4) },
         }))
       : []
     return past
@@ -225,7 +226,7 @@ export const mockApi = {
     if (!group) return null
     return {
       auctionId: nextAuctionId, groupId: group.id, cycle: group.currentCycle + 1,
-      startTime: group.nextAuctionTime, endTime: hoursFromNow(0.5), status: "SCHEDULED",
+      startTime: group.nextAuctionTime ?? hoursFromNow(1), endTime: hoursFromNow(0.5), status: "SCHEDULED",
       poolAmount: group.contributionAmount * group.groupSize, bids: [],
     }
   },
