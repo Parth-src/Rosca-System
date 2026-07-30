@@ -65,8 +65,10 @@ public class GroupService {
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        if (!user.getId().equals(group.getAdminUserId())) {
-            throw new RuntimeException("Only the group admin can start the group");
+        if (group.getAdminUserId() == null) {
+            group.setAdminUserId(user.getId());
+        } else if (!user.getId().equals(group.getAdminUserId())) {
+            throw new RuntimeException("Only the group admin (User ID: " + group.getAdminUserId() + ") can start the group. (You are logged in as User ID: " + user.getId() + ")");
         }
 
         if (group.getNextAuctionTime() != null) {
