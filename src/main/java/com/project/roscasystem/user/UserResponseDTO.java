@@ -1,6 +1,6 @@
 package com.project.roscasystem.user;
 
-import com.project.roscasystem.common.enums.AccountStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

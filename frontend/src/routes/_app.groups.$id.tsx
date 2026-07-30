@@ -145,10 +145,10 @@ function GroupDetailPage() {
                     <TableCell className="font-medium">{m.username}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Progress value={m.currentTrustScore} className="w-24" indicatorClassName={
-                          m.currentTrustScore >= 75 ? "bg-success" : m.currentTrustScore >= 50 ? "bg-warning" : "bg-destructive"
+                        <Progress value={m.currentTrustScore ?? 0} className="w-24" indicatorClassName={
+                          (m.currentTrustScore ?? 0) >= 75 ? "bg-success" : (m.currentTrustScore ?? 0) >= 50 ? "bg-warning" : "bg-destructive"
                         } />
-                        <span className="text-sm tabular-nums text-muted-foreground">{Math.round(m.currentTrustScore)}</span>
+                        <span className="text-sm tabular-nums text-muted-foreground">{Math.round(m.currentTrustScore ?? 0)}</span>
                       </div>
                     </TableCell>
                     <TableCell><StatusBadge status={m.status} /></TableCell>
@@ -187,7 +187,7 @@ function GroupDetailPage() {
                       <TableCell>{formatDateTime(a.endTime || a.startTime)}</TableCell>
                       <TableCell className="font-semibold text-success">{a.winnerName}</TableCell>
                       <TableCell className="font-serif tabular-nums">
-                        {formatCurrency(a.winningDiscountBid === 0 ? g.contributionAmount * g.groupSize : a.winningDiscountBid)}
+                        {formatCurrency(a.winningDiscountBid ? a.winningDiscountBid : g.contributionAmount * g.groupSize)}
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="bg-success/20 text-success">Closed</Badge>

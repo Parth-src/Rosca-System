@@ -5,7 +5,7 @@ import com.project.roscasystem.bid.BidRepository;
 import com.project.roscasystem.bid.BidResponseDTO;
 import com.project.roscasystem.bid.PlaceBidRequestDTO;
 import com.project.roscasystem.common.enums.AuctionStatus;
-import com.project.roscasystem.common.enums.MembershipStatus;
+
 import com.project.roscasystem.exceptions.*;
 import com.project.roscasystem.group.Group;
 import com.project.roscasystem.group.GroupRepository;
@@ -14,7 +14,6 @@ import com.project.roscasystem.membership.MembershipRepository;
 import com.project.roscasystem.recovery.RecoveryService;
 import com.project.roscasystem.risk.RiskService;
 import com.project.roscasystem.settlement.SettlementService;
-import com.project.roscasystem.transaction.TransactionService;
 import com.project.roscasystem.user.User;
 import com.project.roscasystem.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -175,10 +174,7 @@ public class AuctionService {
                 collectedAmount
         );
 
-        double dividend =
-                (collectedAmount - winnerAmount)
-                        / group.getGroupSize();
-
+        double totalDiscountPool = collectedAmount - winnerAmount;
 
         settlementService.payWinner(
                 winningBid.getBidderMembership(),
@@ -187,7 +183,7 @@ public class AuctionService {
 
         settlementService.distributeDividend(
                 auction,
-                dividend
+                totalDiscountPool
         );
 
         group.setCurrentCycle(group.getCurrentCycle() + 1);

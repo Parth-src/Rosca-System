@@ -4,7 +4,7 @@ import com.project.roscasystem.common.base.BaseEntity;
 import com.project.roscasystem.common.enums.AuctionStatus;
 import com.project.roscasystem.group.Group;
 import com.project.roscasystem.membership.Membership;
-import com.project.roscasystem.user.User;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

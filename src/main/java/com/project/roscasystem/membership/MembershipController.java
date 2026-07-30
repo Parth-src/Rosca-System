@@ -1,6 +1,6 @@
 package com.project.roscasystem.membership;
 
-import com.project.roscasystem.common.enums.MembershipStatus;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

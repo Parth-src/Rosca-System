@@ -1,6 +1,6 @@
 package com.project.roscasystem.group;
 
-import com.project.roscasystem.common.enums.GroupStatus;
+
 import com.project.roscasystem.exceptions.GroupNotFoundException;
 import com.project.roscasystem.exceptions.UserNotFoundException;
 import com.project.roscasystem.membership.Membership;
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import java.util.List;
 
 @Service

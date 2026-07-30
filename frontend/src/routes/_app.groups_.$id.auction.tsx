@@ -115,7 +115,7 @@ function AuctionRoom() {
                       <p className="font-serif text-2xl font-bold text-success-foreground">{auction.data.winnerName}</p>
                       <p className="text-xs text-success-foreground mt-3 font-semibold uppercase tracking-wider">Final Payout</p>
                       <p className="font-serif text-2xl font-bold text-success-foreground">
-                        {formatCurrency(auction.data.winningDiscountBid === 0 ? g.contributionAmount * g.groupSize : auction.data.winningDiscountBid)}
+                        {formatCurrency(auction.data.winningDiscountBid ? auction.data.winningDiscountBid : g.contributionAmount * g.groupSize)}
                       </p>
                     </div>
                  </div>
@@ -264,14 +264,14 @@ function AuctionRoom() {
                 <div className="flex justify-between items-center pb-3 border-b">
                   <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Final Payout</span>
                   <span className="font-serif text-xl font-bold text-success">
-                    {formatCurrency(auction.data.winningDiscountBid === 0 ? g.contributionAmount * g.groupSize : auction.data.winningDiscountBid)}
+                    {formatCurrency(auction.data.winningDiscountBid ?? (g.contributionAmount * g.groupSize))}
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-1">
                   <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Dividend per member</span>
                   <span className="font-serif text-xl font-bold text-primary">
                     {formatCurrency(
-                      ((g.contributionAmount * g.groupSize) - (auction.data.winningDiscountBid === 0 ? g.contributionAmount * g.groupSize : auction.data.winningDiscountBid)) / g.groupSize
+                      ((g.contributionAmount * g.groupSize) - (auction.data.winningDiscountBid ?? (g.contributionAmount * g.groupSize))) / g.groupSize
                     )}
                   </span>
                 </div>

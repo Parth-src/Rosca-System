@@ -1,9 +1,8 @@
 package com.project.roscasystem.report;
 
 import com.project.roscasystem.common.enums.MembershipStatus;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+
+
 
 
 public record PerformanceReportDTO (
