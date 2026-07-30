@@ -30,17 +30,14 @@ public class PerformanceReportService {
                 transactions.stream()
                         .filter(t ->
                                 t.getTransactionType()== TransactionType.CONTRIBUTION ||
-
                                         t.getTransactionType()==TransactionType.PENALTY)
-
-                        .mapToDouble(Transaction::getAmount)
+                        .mapToDouble(t -> Math.abs(t.getAmount()))
                         .sum();
 
         double dividend =
                 transactions.stream()
                         .filter(t ->
                                 t.getTransactionType()==TransactionType.DIVIDEND)
-
                         .mapToDouble(Transaction::getAmount)
                         .sum();
 
@@ -48,7 +45,6 @@ public class PerformanceReportService {
                 transactions.stream()
                         .filter(t ->
                                 t.getTransactionType()==TransactionType.ALLOCATION)
-
                         .mapToDouble(Transaction::getAmount)
                         .sum();
 
@@ -56,7 +52,6 @@ public class PerformanceReportService {
                 transactions.stream()
                         .filter(t ->
                                 t.getTransactionType()==TransactionType.RECOVERY)
-
                         .mapToDouble(Transaction::getAmount)
                         .sum();
 
@@ -64,8 +59,7 @@ public class PerformanceReportService {
                 transactions.stream()
                         .filter(t ->
                                 t.getTransactionType()==TransactionType.PENALTY)
-
-                        .mapToDouble(Transaction::getAmount)
+                        .mapToDouble(t -> Math.abs(t.getAmount()))
                         .sum();
 
         double totalReceived = dividend + allocation + recovery;
