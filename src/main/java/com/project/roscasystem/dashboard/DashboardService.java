@@ -1,5 +1,6 @@
 package com.project.roscasystem.dashboard;
 
+import com.project.roscasystem.common.enums.GroupStatus;
 import com.project.roscasystem.common.enums.MembershipStatus;
 import com.project.roscasystem.common.enums.TransactionType;
 import com.project.roscasystem.membership.Membership;
@@ -22,23 +23,30 @@ public class DashboardService {
     public DashboardSummaryDTO getDashboardSummary(User user) {
         List<Membership> memberships = membershipRepository.findByUser(user);
         
-        int activeGroupsCount = (int) memberships.stream()
-                .filter(m -> m.getMembershipStatus() == MembershipStatus.ACTIVE)
-                .count();
+        List<Membership> activeMemberships = memberships.stream()
+                .filter(m -> m.getGroup() != null &&
+                        (m.getGroup().getGroupStatus() == GroupStatus.ACTIVE || m.getGroup().getGroupStatus() == GroupStatus.FORMING) &&
+                        (m.getMembershipStatus() == MembershipStatus.ACTIVE || m.getMembershipStatus() == MembershipStatus.POOL_RECEIVED) &&
+                        m.getGroup().getCurrentCycle() <= m.getGroup().getNumberOfCycles())
+                .toList();
+
+        int activeGroupsCount = activeMemberships.size();
 
         List<Transaction> transactions = transactionRepository.findByMembership_User_Id(user.getId());
         
-        // Calculate total savings: Sum of all CONTRIBUTION transactions
+        // Calculate total savings: Sum of all CONTRIBUTION transactions (positive value)
         double totalSavings = transactions.stream()
                 .filter(t -> t.getTransactionType() == TransactionType.CONTRIBUTION)
-                .mapToDouble(Transaction::getAmount)
+                .mapToDouble(t -> Math.abs(t.getAmount()))
                 .sum();
 
         // Fetch risk score from the user entity
         double riskScore = user.getCurrentTrustScore(); 
         
-        // Dummy calculation for upcoming contribution based on active groups
-        double upcomingContribution = activeGroupsCount * 500.0; 
+        // Upcoming contribution based on active groups' monthly deposit amounts
+        double upcomingContribution = activeMemberships.stream()
+                .mapToDouble(m -> m.getGroup().getMonthlyDepositAmount())
+                .sum();
 
         return DashboardSummaryDTO.builder()
                 .totalSavings(totalSavings)
