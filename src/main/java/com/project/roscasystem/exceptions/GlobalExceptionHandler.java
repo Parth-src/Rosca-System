@@ -163,8 +163,8 @@ public class GlobalExceptionHandler {
 
 
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponseDTO> handleException(RuntimeException e){
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseDTO> handleException(Exception e){
         ErrorResponseDTO error= new ErrorResponseDTO(
                 e.getMessage(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -172,7 +172,6 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.badRequest().body(error);
-
     }
 
 
