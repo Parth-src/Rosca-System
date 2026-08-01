@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.CONFLICT.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
@@ -83,7 +83,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.CONFLICT.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -93,7 +93,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.CONFLICT.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -114,7 +114,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.CONFLICT.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -125,7 +125,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.CONFLICT.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -135,7 +135,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -146,7 +146,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.CONFLICT.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -156,7 +156,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 ex.getMessage(),
                 HttpStatus.CONFLICT.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -168,7 +168,7 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error= new ErrorResponseDTO(
                 e.getMessage(),
                 HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
 
         return ResponseEntity.badRequest().body(error);
