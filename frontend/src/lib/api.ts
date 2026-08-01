@@ -40,11 +40,29 @@ async function http<T>(path: string, init: RequestInit = {}): Promise<T> {
     ...(init.headers as Record<string, string> | undefined),
   }
   if (token) headers.Authorization = `Bearer ${token}`
-  const baseUrl = API_BASE_URL?.endsWith("/api") ? API_BASE_URL : `${API_BASE_URL}/api`
-  const res = await fetch(`${baseUrl}${path}`, { ...init, headers })
-  if (res.status === 401) clearToken()
-  if (!res.ok) throw new Error((await res.text()) || res.statusText)
-  return res.json() as Promise<T>
+
+  const cleanBase = API_BASE_URL ? API_BASE_URL.trim().replace(/\/+$/, '') : ''
+  const baseUrl = cleanBase.endsWith('/api') ? cleanBase : `${cleanBase}/api`
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 15000)
+
+  try {
+    const res = await fetch(`${baseUrl}${path}`, { ...init, headers, signal: controller.signal })
+    clearTimeout(timeoutId)
+    if (res.status === 401) clearToken()
+    if (!res.ok) {
+      const text = await res.text().catch(() => "")
+      throw new Error(text || res.statusText || `Request failed (${res.status})`)
+    }
+    return res.json() as Promise<T>
+  } catch (err: any) {
+    clearTimeout(timeoutId)
+    if (err.name === 'AbortError') {
+      throw new Error('Connection timed out. The server may be waking up or unreachable.')
+    }
+    throw err
+  }
 }
 
 export const authApi = {

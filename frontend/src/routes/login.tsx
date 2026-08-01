@@ -5,7 +5,7 @@ import { z } from "zod"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { AuthLayout } from "@/components/layout/auth-layout"
-import { AuthProvider, useAuth } from "@/context/AuthContext"
+import { useAuth } from "@/context/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -20,11 +20,7 @@ export const Route = createFileRoute("/login")({
       { property: "og:description", content: "Sign in to manage your Circl savings circles and payouts." },
     ],
   }),
-  component: () => (
-    <AuthProvider>
-      <LoginPage />
-    </AuthProvider>
-  ),
+  component: LoginPage,
 })
 
 const schema = z.object({
